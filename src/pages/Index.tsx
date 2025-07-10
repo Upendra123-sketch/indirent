@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,12 +48,12 @@ const Index = () => {
       features: ["Police Verification", "Employment Check", "Credit Score"]
     },
     {
-      title: "Property Registration",
-      description: "Register your property and find verified tenants",
-      price: "Free",
-      originalPrice: "",
+      title: "Document Support",
+      description: "Get help with all rental documentation",
+      price: "₹149",
+      originalPrice: "₹299",
       icon: MapPin,
-      features: ["Zero Brokerage", "Verified Tenants", "24/7 Support"]
+      features: ["Legal Consultation", "Document Review", "24/7 Support"]
     }
   ];
 
@@ -89,30 +88,28 @@ const Index = () => {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">NB</span>
+              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                <span className="text-white font-bold text-sm">RA</span>
               </div>
-              <span className="text-xl font-bold text-gray-800">NoBroker</span>
+              <span className="text-xl font-bold text-gray-800">RentalAgreement</span>
             </div>
             
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#" className="text-gray-600 hover:text-red-600 transition-colors">Buy</a>
-              <a href="#" className="text-gray-600 hover:text-red-600 transition-colors">Rent</a>
-              <a href="#" className="text-gray-600 hover:text-red-600 transition-colors">Sell</a>
-              <a href="#" className="text-gray-600 hover:text-red-600 transition-colors">Home Loans</a>
-              <a href="#" className="text-gray-600 hover:text-red-600 transition-colors">Legal Services</a>
+              <a href="#services" className="text-gray-600 hover:text-primary transition-colors">Services</a>
+              <a href="#about" className="text-gray-600 hover:text-primary transition-colors">About</a>
+              <a href="#contact" className="text-gray-600 hover:text-primary transition-colors">Contact</a>
             </nav>
 
             <div className="flex items-center space-x-3">
               <Button 
                 variant="ghost" 
-                className="text-gray-600 hover:text-red-600"
+                className="text-gray-600 hover:text-primary"
                 onClick={() => handleAuthClick('login')}
               >
                 Login
               </Button>
               <Button 
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="bg-primary hover:bg-primary/90 text-white"
                 onClick={() => handleAuthClick('signup')}
               >
                 Sign Up
@@ -123,22 +120,22 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-red-600 to-red-700 text-white py-16">
+      <section className="relative bg-gradient-to-r from-primary to-primary/80 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 India's Largest Platform for
-                <span className="block text-yellow-300">Rental Agreements</span>
+                <span className="block text-white/90">Rental Agreements</span>
               </h1>
-              <p className="text-xl mb-6 text-red-100">
+              <p className="text-xl mb-6 text-primary-foreground/80">
                 Get legally binding rental agreements delivered to your doorstep in 24 hours. 
                 Trusted by 50+ lakh customers across India.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button 
                   size="lg" 
-                  className="bg-white text-red-600 hover:bg-gray-100"
+                  className="bg-white text-primary hover:bg-gray-100"
                   onClick={() => handleAuthClick('signup')}
                 >
                   Get Rental Agreement
@@ -147,7 +144,7 @@ const Index = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white text-white hover:bg-white hover:text-red-600"
+                  className="border-white text-white hover:bg-white hover:text-primary"
                 >
                   <Play className="mr-2 h-5 w-5" />
                   Watch Demo
@@ -183,7 +180,7 @@ const Index = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 bg-gray-50">
+      <section id="services" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Services</h2>
@@ -256,16 +253,16 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-red-600 text-white">
+      <section className="py-16 bg-primary text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl mb-8 text-red-100">
-            Join 50+ lakh customers who trust NoBroker for their rental needs
+          <p className="text-xl mb-8 text-primary-foreground/80">
+            Join 50+ lakh customers who trust us for their rental needs
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              className="bg-white text-red-600 hover:bg-gray-100"
+              className="bg-white text-primary hover:bg-gray-100"
               onClick={() => handleAuthClick('signup')}
             >
               Get Started Today
@@ -274,7 +271,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600"
+              className="border-white text-white hover:bg-white hover:text-primary"
             >
               <Phone className="mr-2 h-5 w-5" />
               Call Now: +91-9999999999

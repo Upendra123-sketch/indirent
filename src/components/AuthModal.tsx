@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +27,7 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
     e.preventDefault();
     // Handle form submission
     console.log('Form submitted:', formData);
+    alert('Authentication functionality will be implemented with Supabase integration');
     onClose();
   };
 
@@ -138,7 +138,7 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
             </div>
           )}
           
-          <Button type="submit" className="w-full bg-red-600 hover:bg-red-700">
+          <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
             {mode === 'login' ? 'Sign In' : 'Create Account'}
           </Button>
         </form>
@@ -148,7 +148,7 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
           <p className="text-sm text-gray-600">
             {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
             <button
-              className="ml-1 text-red-600 hover:underline font-medium"
+              className="ml-1 text-primary hover:underline font-medium"
               onClick={() => onModeChange(mode === 'login' ? 'signup' : 'login')}
             >
               {mode === 'login' ? 'Sign Up' : 'Sign In'}
