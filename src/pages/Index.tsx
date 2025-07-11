@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone, User, Fingerprint, Smartphone, Stamp } from "lucide-react";
+import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone, User, Fingerprint, Smartphone, Stamp, MapPin, Headphones, BadgeCheck, Package, FileUser } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import AuthModal from "@/components/AuthModal";
@@ -308,80 +308,80 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Add Ons Section */}
+      {/* Available Add Ons Section */}
       <section className="py-20 px-4 bg-white">
         <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-blue-600">
-              Add Ons
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-800">
+              Available Add Ons
             </h2>
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Mail className="h-8 w-8 text-white" />
+            
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
+              {/* Extra Visit for Biometric */}
+              <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MapPin className="h-8 w-8 text-red-600" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-blue-600">
-                  Premium Document Review
+                <h3 className="text-xl font-bold mb-2 text-gray-800">
+                  Extra Visit for Biometric
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  Get your rental agreement reviewed by our legal experts to ensure 
-                  complete compliance and protection for both parties.
+                <p className="text-gray-600 text-sm mb-4">
+                  Get your biometric done from anywhere anytime
                 </p>
-                <ul className="text-left space-y-2 mb-6">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">Expert legal review</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">Custom clause suggestions</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">Risk assessment report</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">48-hour turnaround</span>
-                  </li>
-                </ul>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  Get Expert Review - ₹999
-                </Button>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Phone className="h-8 w-8 text-white" />
+              {/* Tech Assistance */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Headphones className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 text-blue-600">
-                  Legal Consultation Call
+                <h3 className="text-xl font-bold mb-2 text-gray-800">
+                  Tech Assistance
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Get technical assistance for distant registration
+                </p>
+              </div>
+
+              {/* Tenant Verification */}
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300">
+                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BadgeCheck className="h-8 w-8 text-yellow-600" />
+                </div>
+                <h3 className="text-xl font-bold mb-2 text-gray-800">
+                  Tenant Verification
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Verify your tenant's identity instantly.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Hardcopy Delivery */}
+              <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Package className="h-8 w-8 text-red-600" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">
+                  Hardcopy Delivery
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Schedule a one-on-one consultation with our legal experts to discuss 
-                  your specific requirements and get personalized advice.
+                  Hardcopy delivery at your Doorstep
                 </p>
-                <ul className="text-left space-y-2 mb-6">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">30-minute consultation</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">Personalized legal advice</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">Document customization help</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-700">Follow-up email summary</span>
-                  </li>
-                </ul>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  Book Consultation - ₹1,499
-                </Button>
+              </div>
+
+              {/* Power Of Attorney */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <FileUser className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-gray-800">
+                  Power Of Attorney
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Drafting of Power Of Attorney.
+                </p>
               </div>
             </div>
           </div>
@@ -424,6 +424,7 @@ const Index = () => {
         onClose={() => setShowAuth(false)}
         mode={authMode}
         onModeChange={setAuthMode}
+        onSuccess={handleAuthSuccess}
       />
       
       <DemoVideoModal 

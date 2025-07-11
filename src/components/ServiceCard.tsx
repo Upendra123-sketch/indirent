@@ -27,9 +27,7 @@ const ServiceCard = ({
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    if (title === "Rental Agreement") {
-      navigate('/rental-agreement');
-    }
+    navigate('/rental-agreement');
   };
 
   return (
