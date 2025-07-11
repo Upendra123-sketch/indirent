@@ -36,24 +36,33 @@ const Summary = ({ formData, onBack }: SummaryProps) => {
     try {
       console.log('Submitting rental agreement:', formData);
       
+      // Validate required fields
+      if (!formData.landlordName || !formData.tenantName || !formData.monthlyRent) {
+        throw new Error('Missing required fields: landlord name, tenant name, and monthly rent are required');
+      }
+
+      const agreementData = {
+        landlord_name: formData.landlordName,
+        landlord_email: formData.landlordEmail || null,
+        landlord_phone: formData.landlordPhone || null,
+        tenant_name: formData.tenantName,
+        tenant_email: formData.tenantEmail || null,
+        tenant_phone: formData.tenantPhone || null,
+        property_address: formData.propertyAddress || `${formData.houseNumber || ''} ${formData.buildingName || ''} ${formData.locality || ''} ${formData.propertyCity || ''}`.trim(),
+        property_type: formData.propertyType || null,
+        rent_amount: parseFloat(formData.monthlyRent),
+        security_deposit: formData.refundableDeposit ? parseFloat(formData.refundableDeposit) : null,
+        lease_start_date: formData.agreementStartDate || null,
+        lease_end_date: null,
+        agreement_terms: `Duration: ${formData.agreementDuration || 'Not specified'}, Lock-in Period: ${formData.lockinPeriod || 'Not specified'}`,
+        status: 'pending'
+      };
+
+      console.log('Inserting agreement data:', agreementData);
+
       const { data, error } = await supabase
         .from('rental_agreements')
-        .insert({
-          landlord_name: formData.landlordName || '',
-          landlord_email: formData.landlordEmail || '',
-          landlord_phone: formData.landlordPhone || '',
-          tenant_name: formData.tenantName || '',
-          tenant_email: formData.tenantEmail || '',
-          tenant_phone: formData.tenantPhone || '',
-          property_address: formData.propertyAddress || `${formData.houseNumber || ''} ${formData.buildingName || ''} ${formData.locality || ''} ${formData.propertyCity || ''}`.trim(),
-          property_type: formData.propertyType || '',
-          rent_amount: parseFloat(formData.monthlyRent || '0'),
-          security_deposit: parseFloat(formData.refundableDeposit || '0'),
-          lease_start_date: formData.agreementStartDate || null,
-          lease_end_date: null, // Calculate based on duration if needed
-          agreement_terms: `Duration: ${formData.agreementDuration || 'Not specified'}, Lock-in Period: ${formData.lockinPeriod || 'Not specified'}`,
-          status: 'pending'
-        })
+        .insert(agreementData)
         .select()
         .single();
 

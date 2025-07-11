@@ -40,16 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Check if user is admin with additional security checks
+          // Check if user is admin - simplified approach
           setTimeout(async () => {
             try {
-              // Verify session is still valid before admin check
-              const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
-              if (authError || !currentUser || currentUser.id !== session.user.id) {
-                setIsAdmin(false);
-                return;
-              }
-
+              // Check admin_users table for this email
               const { data, error } = await supabase
                 .from('admin_users')
                 .select('id, email')
@@ -58,16 +52,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               
               if (error) {
                 console.error('Error checking admin status:', error);
-                // For admin account, default to admin status
-                setIsAdmin(session.user.email === 'indirent05@gmail.com');
+                setIsAdmin(false);
               } else {
                 setIsAdmin(!!data);
-                console.log('Admin status:', !!data);
+                console.log('Admin status:', !!data, 'for email:', session.user.email);
               }
             } catch (error) {
               console.error('Error in admin check:', error);
-              // For admin account, default to admin status
-              setIsAdmin(session.user.email === 'indirent05@gmail.com');
+              setIsAdmin(false);
             }
           }, 100);
         } else {
