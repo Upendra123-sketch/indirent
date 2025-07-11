@@ -39,19 +39,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Check if user is admin
+          // Check if user is admin - use setTimeout to avoid blocking the auth state change
           setTimeout(async () => {
             try {
-              const { data } = await supabase
+              const { data, error } = await supabase
                 .from('admin_users')
                 .select('id')
                 .eq('email', session.user.email)
-                .single();
-              setIsAdmin(!!data);
+                .maybeSingle();
+              
+              if (error) {
+                console.error('Error checking admin status:', error);
+                setIsAdmin(false);
+              } else {
+                setIsAdmin(!!data);
+                console.log('Admin status:', !!data);
+              }
             } catch (error) {
+              console.error('Error in admin check:', error);
               setIsAdmin(false);
             }
-          }, 0);
+          }, 100);
         } else {
           setIsAdmin(false);
         }
@@ -73,6 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -82,12 +91,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Sign in error:', error);
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
-      // Direct signup without email confirmation
+      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -95,51 +106,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: `${window.location.origin}/`
         },
       });
       
       console.log('Sign up result:', { data, error });
-      
-      // If signup successful but user needs to confirm email, auto-confirm for this demo
-      if (data.user && !data.user.email_confirmed_at && !error) {
-        // For demo purposes, we'll sign them in directly
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        return { error: signInError };
-      }
-      
       return { error };
     } catch (error) {
       console.error('Sign up error:', error);
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const adminSignIn = async (username: string, password: string) => {
     try {
+      setLoading(true);
+      console.log('Attempting admin sign in with username:', username);
+      
       // First get the admin user by username
       const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
         .select('email')
         .eq('username', username)
-        .single();
+        .maybeSingle();
 
-      if (adminError || !adminUser) {
+      console.log('Admin user lookup result:', { adminUser, adminError });
+
+      if (adminError) {
+        console.error('Admin lookup error:', adminError);
+        return { error: { message: 'Authentication failed. Please check your credentials.' } };
+      }
+
+      if (!adminUser) {
+        console.log('No admin user found for username:', username);
         return { error: { message: 'Invalid username or password' } };
       }
 
+      console.log('Found admin user, attempting sign in with email:', adminUser.email);
+
       // Sign in using the admin's email
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: adminUser.email,
         password,
       });
 
+      console.log('Admin sign in result:', { data, error });
       return { error };
     } catch (error) {
       console.error('Admin sign in error:', error);
-      return { error };
+      return { error: { message: 'Authentication failed. Please try again.' } };
+    } finally {
+      setLoading(false);
     }
   };
 
