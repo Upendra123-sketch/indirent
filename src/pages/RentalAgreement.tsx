@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Shield, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,14 +15,17 @@ import TenantDetail from "@/components/rental-steps/TenantDetail";
 import WitnessDetail from "@/components/rental-steps/WitnessDetail";
 import Summary from "@/components/rental-steps/Summary";
 import { RentalFormData } from "@/types/rental";
+import AuthModal from "@/components/AuthModal";
 
 const RentalAgreement = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<RentalFormData>({});
   const [saving, setSaving] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
   const stepNames = [
     "Contract Detail",
@@ -31,6 +35,13 @@ const RentalAgreement = () => {
     "Witness Detail",
     "Summary"
   ];
+
+  // Check authentication on component mount
+  useEffect(() => {
+    if (!loading && !user) {
+      setShowAuth(true);
+    }
+  }, [user, loading]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -186,6 +197,75 @@ const RentalAgreement = () => {
     }
   };
 
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show auth modal
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => navigate('/')}
+                  className="p-2"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-sm">RA</span>
+                  </div>
+                  <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="max-w-md mx-auto">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Shield className="h-8 w-8 text-blue-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Sign In Required
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Please sign in to create your rental agreement. Your data will be securely saved to your account.
+            </p>
+            <Button 
+              onClick={() => setShowAuth(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+            >
+              Sign In to Continue
+            </Button>
+          </div>
+        </div>
+
+        <AuthModal 
+          isOpen={showAuth} 
+          onClose={() => setShowAuth(false)}
+          mode={authMode}
+          onModeChange={setAuthMode}
+        />
+      </div>
+    );
+  }
+
   if (currentStep === 6) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -296,7 +376,6 @@ const RentalAgreement = () => {
                   <p>• Keep your documents ready for upload</p>
                   <p>• Double-check all information before proceeding</p>
                   <p>• Your data is automatically saved</p>
-                  {!user && <p>• Sign in to save your progress</p>}
                 </div>
               </CardContent>
             </Card>
