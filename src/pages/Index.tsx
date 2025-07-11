@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone } from "lucide-react";
+import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import DemoVideoModal from "@/components/DemoVideoModal";
 import ServiceCard from "@/components/ServiceCard";
@@ -13,6 +14,7 @@ const Index = () => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [showDemo, setShowDemo] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleGetStarted = () => {
     navigate('/rental-agreement');
@@ -21,6 +23,10 @@ const Index = () => {
   const handleAuthSuccess = () => {
     setShowAuth(false);
     navigate('/rental-agreement');
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
 
   const testimonials = [
@@ -59,11 +65,18 @@ const Index = () => {
               </div>
               <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
             </div>
-            <nav className="space-x-4">
+            <nav className="flex items-center space-x-4">
               <Button variant="ghost" onClick={() => navigate('/admin')}>Admin</Button>
-              <Button variant="outline" onClick={() => setShowAuth(true)}>
-                Sign In
-              </Button>
+              {user ? (
+                <Button variant="outline" onClick={handleProfileClick}>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => setShowAuth(true)}>
+                  Sign In
+                </Button>
+              )}
             </nav>
           </div>
         </div>
