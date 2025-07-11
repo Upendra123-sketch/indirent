@@ -199,6 +199,54 @@ const AdminPanel = () => {
     }
   };
 
+  const viewDocument = async (documentItem: RentalDocument) => {
+    try {
+      // Extract the file path from the URL
+      let filePath = documentItem.file_url;
+      
+      if (filePath.startsWith('http')) {
+        const urlParts = filePath.split('/');
+        const bucketIndex = urlParts.findIndex(part => part === 'rental-documents');
+        if (bucketIndex !== -1 && urlParts[bucketIndex + 1]) {
+          filePath = urlParts.slice(bucketIndex + 1).join('/');
+        }
+      }
+
+      console.log('Viewing file from path:', filePath);
+
+      // Get a signed URL for viewing (valid for 60 seconds)
+      const { data, error } = await supabase.storage
+        .from('rental-documents')
+        .createSignedUrl(filePath, 60);
+
+      if (error) {
+        console.error('Signed URL error:', error);
+        // Fallback: try to get public URL
+        const { data: publicData } = supabase.storage
+          .from('rental-documents')
+          .getPublicUrl(filePath);
+        
+        if (publicData.publicUrl) {
+          window.open(publicData.publicUrl, '_blank');
+        } else {
+          throw new Error('Could not generate view URL');
+        }
+        return;
+      }
+
+      if (data.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('View error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to view document. Try downloading instead.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const updateAgreementStatus = async (id: string, status: string) => {
     try {
       const { error } = await supabase
@@ -552,15 +600,15 @@ const AdminPanel = () => {
                                </div>
                                
                                <div className="flex space-x-2">
-                                 <Button
-                                   variant="outline"
-                                   size="sm"
-                                   onClick={() => window.open(documentItem.file_url, '_blank')}
-                                   className="hover-lift group"
-                                 >
-                                   <Eye className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                                   View
-                                 </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => viewDocument(documentItem)}
+                                    className="hover-lift group"
+                                  >
+                                    <Eye className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                                    View
+                                  </Button>
                                  <Button
                                    variant="default"
                                    size="sm"
