@@ -22,7 +22,10 @@ const Summary = ({ formData, onBack }: SummaryProps) => {
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
+    console.log('Starting form submission with user:', user);
+    
     if (!user) {
+      console.error('No user found for submission');
       toast({
         title: "Authentication Required",
         description: "Please sign in to submit the rental agreement.",
@@ -81,11 +84,21 @@ const Summary = ({ formData, onBack }: SummaryProps) => {
       // Navigate to profile to show the new agreement
       navigate('/profile');
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting rental agreement:', error);
+      
+      let errorMessage = "Failed to submit rental agreement. Please try again.";
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.code === '23505') {
+        errorMessage = "This agreement may already exist.";
+      } else if (error?.code === '42501') {
+        errorMessage = "Permission denied. Please check your authentication.";
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to submit rental agreement. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

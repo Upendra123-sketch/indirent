@@ -63,13 +63,25 @@ const AdminPanel = () => {
 
   const fetchData = async () => {
     try {
+      console.log('Admin fetching data, user:', user, 'isAdmin:', isAdmin);
+      
+      if (!user || !isAdmin) {
+        console.error('Not authorized to fetch admin data');
+        throw new Error('Not authorized to access admin data');
+      }
+
       // Fetch rental agreements
       const { data: agreementsData, error: agreementsError } = await supabase
         .from('rental_agreements')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (agreementsError) throw agreementsError;
+      if (agreementsError) {
+        console.error('Agreements fetch error:', agreementsError);
+        throw agreementsError;
+      }
+      
+      console.log('Fetched agreements:', agreementsData);
       setAgreements(agreementsData || []);
 
       // Fetch documents
@@ -78,14 +90,27 @@ const AdminPanel = () => {
         .select('*')
         .order('uploaded_at', { ascending: false });
 
-      if (documentsError) throw documentsError;
+      if (documentsError) {
+        console.error('Documents fetch error:', documentsError);
+        throw documentsError;
+      }
+      
+      console.log('Fetched documents:', documentsData);
       setDocuments(documentsData || []);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching data:', error);
+      
+      let errorMessage = "Failed to fetch data. Please try again.";
+      if (error?.code === '42501') {
+        errorMessage = "Permission denied. Please check admin privileges.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to fetch data. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
