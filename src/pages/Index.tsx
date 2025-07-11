@@ -20,11 +20,6 @@ const Index = () => {
     navigate('/rental-agreement');
   };
 
-  const handleAuthSuccess = () => {
-    setShowAuth(false);
-    navigate('/rental-agreement');
-  };
-
   const handleProfileClick = () => {
     navigate('/profile');
   };
@@ -424,7 +419,6 @@ const Index = () => {
         onClose={() => setShowAuth(false)}
         mode={authMode}
         onModeChange={setAuthMode}
-        onSuccess={handleAuthSuccess}
       />
       
       <DemoVideoModal 
