@@ -31,6 +31,23 @@ const WitnessDetail = ({ formData, onInputChange, onNext, onBack }: WitnessDetai
     setShowDocumentUpload(false);
   };
 
+  const validateAadhar = (value: string) => {
+    // Remove any non-digit characters
+    const digits = value.replace(/\D/g, '');
+    // Limit to 12 digits
+    return digits.slice(0, 12);
+  };
+
+  const handleWitness1AadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const validatedValue = validateAadhar(e.target.value);
+    onInputChange('witness1Aadhar', validatedValue);
+  };
+
+  const handleWitness2AadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const validatedValue = validateAadhar(e.target.value);
+    onInputChange('witness2Aadhar', validatedValue);
+  };
+
   if (showDocumentUpload) {
     return (
       <DocumentUploadStep
@@ -85,14 +102,19 @@ const WitnessDetail = ({ formData, onInputChange, onNext, onBack }: WitnessDetai
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="witness1Aadhar">Aadhaar Number</Label>
+                <Label htmlFor="witness1Aadhar">Aadhaar Number (12 Digits)</Label>
                 <Input
                   id="witness1Aadhar"
                   value={formData.witness1Aadhar || ''}
-                  onChange={(e) => onInputChange('witness1Aadhar', e.target.value)}
+                  onChange={handleWitness1AadharChange}
                   placeholder="Enter Aadhaar number"
+                  maxLength={12}
+                  pattern="[0-9]{12}"
                   className="transition-all duration-300"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {formData.witness1Aadhar?.length || 0}/12 digits
+                </p>
               </div>
               <div>
                 <Label htmlFor="witness1Age">Age</Label>
@@ -142,14 +164,19 @@ const WitnessDetail = ({ formData, onInputChange, onNext, onBack }: WitnessDetai
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="witness2Aadhar">Aadhaar Number</Label>
+                <Label htmlFor="witness2Aadhar">Aadhaar Number (12 Digits)</Label>
                 <Input
                   id="witness2Aadhar"
                   value={formData.witness2Aadhar || ''}
-                  onChange={(e) => onInputChange('witness2Aadhar', e.target.value)}
+                  onChange={handleWitness2AadharChange}
                   placeholder="Enter Aadhaar number"
+                  maxLength={12}
+                  pattern="[0-9]{12}"
                   className="transition-all duration-300"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {formData.witness2Aadhar?.length || 0}/12 digits
+                </p>
               </div>
               <div>
                 <Label htmlFor="witness2Age">Age</Label>
