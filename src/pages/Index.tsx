@@ -62,7 +62,7 @@ const Index = () => {
               <img 
                 src="/lovable-uploads/349dcba6-1db7-46e0-aef0-f5835990f926.png" 
                 alt="IndiRent Logo" 
-                className="h-10 w-auto"
+                className="h-16 w-auto"
               />
             </div>
             <nav className="flex items-center space-x-4">
