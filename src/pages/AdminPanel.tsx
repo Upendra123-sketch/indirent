@@ -50,16 +50,14 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || !isAdmin) {
-      // Add a small delay to show loading state, then redirect
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
-      return;
+    if (user && isAdmin) {
+      fetchData();
+    } else if (user && !isAdmin) {
+      // User is logged in but not admin, show access denied
+      setLoading(false);
     }
-    
-    fetchData();
-  }, [user, isAdmin, navigate]);
+    // If user is null, keep loading to wait for auth state
+  }, [user, isAdmin]);
 
   const fetchData = async () => {
     try {
@@ -197,6 +195,18 @@ const AdminPanel = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="text-muted-foreground mb-4">You don't have permission to access this page.</p>
+          <Button onClick={() => navigate('/')}>Go Home</Button>
+        </div>
       </div>
     );
   }
