@@ -30,6 +30,7 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
   const services = [
     {
@@ -78,10 +79,16 @@ const Index = () => {
 
   const handleGetStarted = () => {
     if (!user) {
+      setAuthMode('signup');
       setShowAuthModal(true);
     } else {
       navigate('/rental-agreement');
     }
+  };
+
+  const handleSignIn = () => {
+    setAuthMode('login');
+    setShowAuthModal(true);
   };
 
   const handleUserProfileClick = () => {
@@ -142,7 +149,7 @@ const Index = () => {
               ) : (
                 <Button
                   variant="outline"
-                  onClick={() => setShowAuthModal(true)}
+                  onClick={handleSignIn}
                   className="hover-lift"
                 >
                   Sign In
@@ -462,7 +469,12 @@ const Index = () => {
       </footer>
 
       {/* Modals */}
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+        mode={authMode}
+        onModeChange={setAuthMode}
+      />
       <DemoVideoModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
     </div>
   );

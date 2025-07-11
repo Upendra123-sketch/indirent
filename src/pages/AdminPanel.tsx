@@ -90,18 +90,18 @@ const AdminPanel = () => {
     }
   };
 
-  const downloadDocument = async (document: RentalDocument) => {
+  const downloadDocument = async (documentItem: RentalDocument) => {
     try {
       const { data, error } = await supabase.storage
         .from('rental-documents')
-        .download(document.file_url.split('/').pop() || '');
+        .download(documentItem.file_url.split('/').pop() || '');
 
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
       const link = document.createElement('a');
       link.href = url;
-      link.download = document.file_name;
+      link.download = documentItem.file_name;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -361,9 +361,9 @@ const AdminPanel = () => {
                       <p>No documents found</p>
                     </div>
                   ) : (
-                    documents.map((document, index) => (
+                    documents.map((documentItem, index) => (
                       <div 
-                        key={document.id} 
+                        key={documentItem.id} 
                         className="p-4 border rounded-lg hover:shadow-md transition-all duration-300 hover-lift animate-slide-up"
                         style={{animationDelay: `${index * 0.1}s`}}
                       >
@@ -371,13 +371,13 @@ const AdminPanel = () => {
                           <div className="flex items-start space-x-3">
                             <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
                             <div>
-                              <h4 className="font-medium text-foreground">{document.file_name}</h4>
+                              <h4 className="font-medium text-foreground">{documentItem.file_name}</h4>
                               <div className="text-sm text-muted-foreground space-y-1">
-                                <p>Type: {document.document_type}</p>
-                                <p>Size: {formatFileSize(document.file_size)}</p>
-                                <p>Uploaded: {new Date(document.uploaded_at).toLocaleDateString()}</p>
-                                {document.rental_agreement_id && (
-                                  <p>Agreement ID: {document.rental_agreement_id.substring(0, 8)}...</p>
+                                <p>Type: {documentItem.document_type}</p>
+                                <p>Size: {formatFileSize(documentItem.file_size)}</p>
+                                <p>Uploaded: {new Date(documentItem.uploaded_at).toLocaleDateString()}</p>
+                                {documentItem.rental_agreement_id && (
+                                  <p>Agreement ID: {documentItem.rental_agreement_id.substring(0, 8)}...</p>
                                 )}
                               </div>
                             </div>
@@ -386,7 +386,7 @@ const AdminPanel = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => downloadDocument(document)}
+                              onClick={() => downloadDocument(documentItem)}
                               className="hover-lift group"
                             >
                               <Download className="mr-2 h-4 w-4 group-hover:translate-y-[-2px] transition-transform" />
