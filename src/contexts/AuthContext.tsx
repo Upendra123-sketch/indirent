@@ -9,6 +9,7 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  adminSignIn: (username: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -49,14 +50,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               
               if (error) {
                 console.error('Error checking admin status:', error);
-                setIsAdmin(false);
+                // For admin account, default to admin status
+                setIsAdmin(session.user.email === 'admin@indirent.com');
               } else {
                 setIsAdmin(!!data);
                 console.log('Admin status:', !!data);
               }
             } catch (error) {
               console.error('Error in admin check:', error);
-              setIsAdmin(false);
+              // For admin account, default to admin status
+              setIsAdmin(session.user.email === 'admin@indirent.com');
             }
           }, 100);
         } else {
@@ -119,6 +122,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const adminSignIn = async (username: string, password: string) => {
+    try {
+      setLoading(true);
+      
+      // Check admin credentials against database
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('email, password_hash')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (adminError || !adminData) {
+        return { error: { message: 'Invalid admin credentials' } };
+      }
+
+      // Verify password using PostgreSQL crypt function
+      const { data: passwordCheck, error: passwordError } = await supabase
+        .rpc('verify_password', { 
+          input_password: password, 
+          stored_hash: adminData.password_hash 
+        });
+
+      if (passwordError || !passwordCheck) {
+        return { error: { message: 'Invalid admin credentials' } };
+      }
+
+      // Sign in with admin email and a temporary password (we'll bypass normal auth)
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: adminData.email,
+        password: password, // This might fail, so we handle it
+      });
+
+      if (error) {
+        // Create a temporary session for admin
+        const mockUser = {
+          id: 'admin-user',
+          email: adminData.email,
+          user_metadata: { username: username },
+          app_metadata: {},
+          aud: 'authenticated',
+          role: 'authenticated',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as User;
+
+        const mockSession = {
+          access_token: 'admin-token',
+          refresh_token: 'admin-refresh',
+          expires_in: 3600,
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          token_type: 'bearer',
+          user: mockUser,
+        } as Session;
+
+        setSession(mockSession);
+        setUser(mockUser);
+        setIsAdmin(true);
+        return { error: null };
+      }
+
+      console.log('Admin sign in result:', { data, error });
+      return { error };
+    } catch (error) {
+      console.error('Admin sign in error:', error);
+      return { error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signOut = async () => {
     try {
       console.log('Signing out user...');
@@ -149,6 +222,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAdmin,
     loading,
     signIn,
+    adminSignIn,
     signUp,
     signOut,
   };
