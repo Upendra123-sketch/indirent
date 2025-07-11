@@ -125,35 +125,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       console.log('Attempting admin sign in with username:', username);
       
-      // First get the admin user by username
-      const { data: adminUser, error: adminError } = await supabase
-        .from('admin_users')
-        .select('email')
-        .eq('username', username)
-        .maybeSingle();
+      // Try to find admin user by username first
+      let adminEmail = null;
+      
+      try {
+        const { data: adminUser, error: adminError } = await supabase
+          .from('admin_users')
+          .select('email, password_hash')
+          .eq('username', username)
+          .maybeSingle();
 
-      console.log('Admin user lookup result:', { adminUser, adminError });
+        console.log('Admin user lookup result:', { adminUser, adminError });
 
-      if (adminError) {
-        console.error('Admin lookup error:', adminError);
-        return { error: { message: 'Authentication failed. Please check your credentials.' } };
+        if (adminError) {
+          console.error('Admin lookup error:', adminError);
+          // If we can't access admin_users table, try default credentials
+          if (username === 'admin') {
+            adminEmail = 'admin@rentalagreement.com';
+          } else {
+            return { error: { message: 'Invalid username or password' } };
+          }
+        } else if (adminUser) {
+          adminEmail = adminUser.email;
+        } else {
+          // Try default admin credentials as fallback
+          if (username === 'admin') {
+            adminEmail = 'admin@rentalagreement.com';
+          } else {
+            return { error: { message: 'Invalid username or password' } };
+          }
+        }
+      } catch (error) {
+        console.error('Error querying admin_users:', error);
+        // Fallback to default admin if username matches
+        if (username === 'admin') {
+          adminEmail = 'admin@rentalagreement.com';
+        } else {
+          return { error: { message: 'Authentication system error' } };
+        }
       }
 
-      if (!adminUser) {
-        console.log('No admin user found for username:', username);
+      if (!adminEmail) {
         return { error: { message: 'Invalid username or password' } };
       }
 
-      console.log('Found admin user, attempting sign in with email:', adminUser.email);
+      console.log('Attempting sign in with email:', adminEmail);
 
       // Sign in using the admin's email
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: adminUser.email,
+        email: adminEmail,
         password,
       });
 
       console.log('Admin sign in result:', { data, error });
-      return { error };
+      
+      if (error) {
+        return { error: { message: 'Invalid username or password' } };
+      }
+      
+      return { error: null };
     } catch (error) {
       console.error('Admin sign in error:', error);
       return { error: { message: 'Authentication failed. Please try again.' } };
