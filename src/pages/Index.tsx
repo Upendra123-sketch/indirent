@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone } from "lucide-react";
@@ -27,7 +26,7 @@ const Index = () => {
   const testimonials = [
     {
       name: "Rajesh Kumar",
-      location: "Mumbai",
+      location: "Mumbai", 
       comment: "Created my rental agreement in just 10 minutes. The process was so smooth and professional. Highly recommend!",
       rating: 5,
       avatar: "photo-1507003211169-0a1dd7228f2d"
@@ -145,36 +144,48 @@ const Index = () => {
               icon={FileText}
               title="Smart Document Creation"
               description="AI-powered forms that guide you through every step, ensuring no important detail is missed."
+              price="Free"
+              originalPrice=""
               features={["Step-by-step guidance", "Legal compliance check", "Custom templates"]}
             />
             <ServiceCard
               icon={Shield}
               title="Legal Compliance"
               description="Every document is crafted to meet current legal standards and local regulations."
+              price="Free"
+              originalPrice=""
               features={["Updated legal templates", "Jurisdiction-specific", "Lawyer approved"]}
             />
             <ServiceCard
               icon={Clock}
               title="Instant Generation"
               description="Get your professional rental agreement ready in minutes, not days."
+              price="Free"
+              originalPrice=""
               features={["5-minute setup", "Instant download", "Multiple formats"]}
             />
             <ServiceCard
               icon={Users}
               title="Multi-Party Signing"
               description="Secure digital signing for landlords, tenants, and witnesses."
+              price="Free"
+              originalPrice=""
               features={["Digital signatures", "Email notifications", "Audit trail"]}
             />
             <ServiceCard
               icon={Download}
               title="Secure Storage"
               description="Your documents are safely stored and accessible anytime, anywhere."
+              price="Free"
+              originalPrice=""
               features={["Cloud storage", "24/7 access", "Backup & sync"]}
             />
             <ServiceCard
               icon={Star}
               title="Premium Support"
               description="Get help when you need it with our dedicated customer support team."
+              price="Free"
+              originalPrice=""
               features={["Live chat support", "Video tutorials", "FAQ resources"]}
             />
           </div>
@@ -422,7 +433,6 @@ const Index = () => {
         onClose={() => setShowAuth(false)}
         mode={authMode}
         onModeChange={setAuthMode}
-        onSuccess={handleAuthSuccess}
       />
       
       <DemoVideoModal 
