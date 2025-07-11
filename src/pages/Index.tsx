@@ -56,9 +56,9 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">RA</span>
+                <span className="text-white font-bold text-sm">IR</span>
               </div>
-              <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
+              <span className="text-xl font-bold text-gray-800">IndiRent</span>
             </div>
             <nav className="flex items-center space-x-4">
               {user ? (
@@ -90,7 +90,7 @@ const Index = () => {
               <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                 Agreements
               </span>{' '}
-              <span className="text-blue-600">in Minutes</span>
+              <span className="text-blue-600">with IndiRent</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Professional, legally compliant rental agreements crafted in minutes. 
@@ -217,6 +217,113 @@ const Index = () => {
               <p className="text-gray-600">
                 Get your legal document ready for signatures
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Post Agreement Assurances Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
+              Post Agreement Assurances
+            </h2>
+            <p className="text-xl text-gray-600">
+              Your peace of mind is our priority even after agreement completion
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Document Verification */}
+            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300 animate-fade-in">
+              <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 relative overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" 
+                  alt="Document verification representative"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">
+                Document Verification
+              </h3>
+              <div className="space-y-3 text-left">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">Legal compliance check</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">No document errors</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">All clauses included</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 48-hour Resolution */}
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300 animate-fade-in" style={{animationDelay: '0.2s'}}>
+              <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 relative overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" 
+                  alt="Customer support representative"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">
+                48-hour Resolution
+              </h3>
+              <div className="space-y-3 text-left">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">Quick service</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">Expert assistance</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">Guaranteed help</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dedicated Support */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300 animate-fade-in" style={{animationDelay: '0.4s'}}>
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 relative overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" 
+                  alt="Legal expert"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">
+                Dedicated Support
+              </h3>
+              <div className="space-y-3 text-left">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">Legal guidance</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">Personal advisor</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <span className="text-gray-700">Ongoing support</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress bar like in the reference image */}
+          <div className="mt-12 max-w-4xl mx-auto">
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full w-full"></div>
             </div>
           </div>
         </div>
@@ -387,10 +494,10 @@ const Index = () => {
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Create Your Rental Agreement?
+            Ready to Create Your Rental Agreement with IndiRent?
           </h2>
           <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Join thousands of landlords and tenants who trust our platform for their legal documentation needs.
+            Join thousands of satisfied users who trust IndiRent for their rental agreements
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
