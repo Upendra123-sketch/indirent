@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ChevronRight, ArrowLeft } from "lucide-react";
+import { ChevronRight, ArrowLeft, CheckCircle } from "lucide-react";
 
 interface SummaryProps {
   formData: any;
@@ -10,7 +10,10 @@ interface SummaryProps {
 }
 
 const Summary = ({ formData, onBack }: SummaryProps) => {
-  const completionPercentage = 85; // This would be calculated based on filled fields
+  const completionPercentage = 100; // Agreement is completed when reaching this step
+  const rentAmount = parseFloat(formData.rentAmount) || 0;
+  const securityDeposit = parseFloat(formData.securityDeposit) || 0;
+  const totalAmount = rentAmount + securityDeposit;
 
   return (
     <div className="space-y-6">
@@ -18,7 +21,18 @@ const Summary = ({ formData, onBack }: SummaryProps) => {
         <Button variant="ghost" onClick={onBack} className="p-2">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h2 className="text-xl font-semibold">Summary</h2>
+        <h2 className="text-xl font-semibold">Agreement Complete!</h2>
+      </div>
+
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="w-8 h-8 text-green-600" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">Rental Agreement Created Successfully!</h3>
+        <p className="text-gray-600">Your rental agreement has been saved and is ready for processing.</p>
+        {formData.agreementId && (
+          <p className="text-sm text-gray-500 mt-2">Agreement ID: {formData.agreementId}</p>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -26,84 +40,49 @@ const Summary = ({ formData, onBack }: SummaryProps) => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Rental Agreement With Biometric</span>
+                <span>Rental Agreement Summary</span>
                 <img src="/placeholder.svg" alt="Stamp" className="h-12 w-12" />
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="text-sm text-gray-600 font-medium">FORM COMPLETION DETAIL</div>
-              <div className="text-lg font-semibold">Rental Agreement</div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium">
-                      17%
-                    </div>
-                    <span>Contract detail</span>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Property Details</h4>
+                  <p className="text-sm text-gray-600">{formData.propertyAddress || 'Not specified'}</p>
+                  <p className="text-sm text-gray-600">{formData.propertyType || 'Type not specified'}</p>
                 </div>
-
-                <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium">
-                      0%
-                    </div>
-                    <span>Property Detail</span>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Rental Terms</h4>
+                  <p className="text-sm text-gray-600">Rent: ₹{rentAmount.toLocaleString()}/month</p>
+                  {securityDeposit > 0 && (
+                    <p className="text-sm text-gray-600">Security Deposit: ₹{securityDeposit.toLocaleString()}</p>
+                  )}
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium">
-                      0%
-                    </div>
-                    <span>Landlord Detail</span>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Landlord</h4>
+                  <p className="text-sm text-gray-600">{formData.landlordName || 'Not specified'}</p>
+                  <p className="text-sm text-gray-600">{formData.landlordEmail || ''}</p>
+                  <p className="text-sm text-gray-600">{formData.landlordPhone || ''}</p>
                 </div>
-
-                <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium">
-                      0%
-                    </div>
-                    <span>Tenant Detail</span>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium">
-                      0%
-                    </div>
-                    <span>Witness Detail</span>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400" />
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Tenant</h4>
+                  <p className="text-sm text-gray-600">{formData.tenantName || 'Not specified'}</p>
+                  <p className="text-sm text-gray-600">{formData.tenantEmail || ''}</p>
+                  <p className="text-sm text-gray-600">{formData.tenantPhone || ''}</p>
                 </div>
               </div>
 
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm">Total completion</span>
-                  <Button variant="outline" size="sm">Preview</Button>
+                  <span className="text-sm">Agreement Status</span>
+                  <span className="text-sm font-medium text-green-600">Completed</span>
                 </div>
-                <div className="text-lg font-semibold text-green-600 mb-2">3.4%</div>
-                <Progress value={3.4} className="h-2" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <h3 className="font-semibold">Address</h3>
-                <Button variant="outline" className="w-full text-teal-600 border-teal-600">
-                  ADD ADDRESS +
-                </Button>
+                <Progress value={completionPercentage} className="h-2" />
               </div>
             </CardContent>
           </Card>
@@ -116,13 +95,31 @@ const Summary = ({ formData, onBack }: SummaryProps) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Total Amount</span>
-                  <span className="font-semibold">₹ 0</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Monthly Rent</span>
+                    <span>₹{rentAmount.toLocaleString()}</span>
+                  </div>
+                  {securityDeposit > 0 && (
+                    <div className="flex justify-between">
+                      <span>Security Deposit</span>
+                      <span>₹{securityDeposit.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="border-t pt-2">
+                    <div className="flex justify-between font-semibold">
+                      <span>Total Amount</span>
+                      <span>₹{totalAmount.toLocaleString()}</span>
+                    </div>
+                  </div>
                 </div>
-                <Button className="w-full bg-pink-500 hover:bg-pink-600">
-                  Make payment
-                </Button>
+                
+                <div className="text-center">
+                  <p className="text-sm text-green-600 font-medium mb-2">Agreement Successfully Created!</p>
+                  <p className="text-xs text-gray-500">
+                    Your rental agreement is now saved in the system and ready for processing.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

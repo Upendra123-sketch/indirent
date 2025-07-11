@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          password_hash: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          password_hash: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          password_hash?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      rental_agreements: {
+        Row: {
+          agreement_terms: string | null
+          created_at: string
+          id: string
+          landlord_email: string | null
+          landlord_name: string
+          landlord_phone: string | null
+          lease_end_date: string | null
+          lease_start_date: string | null
+          property_address: string
+          property_type: string | null
+          rent_amount: number
+          security_deposit: number | null
+          status: string | null
+          tenant_email: string | null
+          tenant_name: string
+          tenant_phone: string | null
+        }
+        Insert: {
+          agreement_terms?: string | null
+          created_at?: string
+          id?: string
+          landlord_email?: string | null
+          landlord_name: string
+          landlord_phone?: string | null
+          lease_end_date?: string | null
+          lease_start_date?: string | null
+          property_address: string
+          property_type?: string | null
+          rent_amount: number
+          security_deposit?: number | null
+          status?: string | null
+          tenant_email?: string | null
+          tenant_name: string
+          tenant_phone?: string | null
+        }
+        Update: {
+          agreement_terms?: string | null
+          created_at?: string
+          id?: string
+          landlord_email?: string | null
+          landlord_name?: string
+          landlord_phone?: string | null
+          lease_end_date?: string | null
+          lease_start_date?: string | null
+          property_address?: string
+          property_type?: string | null
+          rent_amount?: number
+          security_deposit?: number | null
+          status?: string | null
+          tenant_email?: string | null
+          tenant_name?: string
+          tenant_phone?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

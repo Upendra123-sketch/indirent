@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { ArrowLeft, Shield, Lightbulb } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import StepIndicator from "@/components/rental-steps/StepIndicator";
 import ContractDetail from "@/components/rental-steps/ContractDetail";
 import PropertyDetail from "@/components/rental-steps/PropertyDetail";
@@ -14,8 +17,11 @@ import Summary from "@/components/rental-steps/Summary";
 
 const RentalAgreement = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
+  const [saving, setSaving] = useState(false);
 
   const stepNames = [
     "Contract Detail",
@@ -30,7 +36,12 @@ const RentalAgreement = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // If we're on the final step (step 5), save to database
+    if (currentStep === 5) {
+      await saveRentalAgreement();
+    }
+    
     if (currentStep < 6) {
       setCurrentStep(prev => prev + 1);
     }
@@ -39,6 +50,64 @@ const RentalAgreement = () => {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const saveRentalAgreement = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to save your rental agreement",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+    
+    try {
+      const agreementData = {
+        landlord_name: formData.landlordName || '',
+        landlord_email: formData.landlordEmail || '',
+        landlord_phone: formData.landlordPhone || '',
+        tenant_name: formData.tenantName || '',
+        tenant_email: formData.tenantEmail || '',
+        tenant_phone: formData.tenantPhone || '',
+        property_address: formData.propertyAddress || '',
+        property_type: formData.propertyType || '',
+        rent_amount: parseFloat(formData.rentAmount) || 0,
+        security_deposit: formData.securityDeposit ? parseFloat(formData.securityDeposit) : null,
+        lease_start_date: formData.leaseStartDate || null,
+        lease_end_date: formData.leaseEndDate || null,
+        agreement_terms: formData.agreementTerms || '',
+        status: 'pending'
+      };
+
+      const { data, error } = await supabase
+        .from('rental_agreements')
+        .insert([agreementData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: "Your rental agreement has been saved successfully.",
+      });
+
+      // Store the agreement ID for reference
+      setFormData(prev => ({ ...prev, agreementId: data.id }));
+      
+    } catch (error) {
+      console.error('Error saving rental agreement:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save rental agreement. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -86,6 +155,7 @@ const RentalAgreement = () => {
             onInputChange={handleInputChange}
             onNext={handleNext}
             onBack={handleBack}
+            saving={saving}
           />
         );
       case 6:
@@ -116,10 +186,10 @@ const RentalAgreement = () => {
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">NB</span>
+                  <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-sm">RA</span>
                   </div>
-                  <span className="text-xl font-bold text-gray-800">NoBroker</span>
+                  <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
                 </div>
               </div>
             </div>
@@ -148,10 +218,10 @@ const RentalAgreement = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">NB</span>
+                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">RA</span>
                 </div>
-                <span className="text-xl font-bold text-gray-800">NoBroker</span>
+                <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
               </div>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -182,6 +252,7 @@ const RentalAgreement = () => {
                     variant="ghost"
                     size="sm"
                     className="text-gray-500"
+                    onClick={() => navigate('/')}
                   >
                     ✕
                   </Button>
@@ -208,7 +279,8 @@ const RentalAgreement = () => {
                   <p>• Fill all required fields marked with *</p>
                   <p>• Keep your documents ready for upload</p>
                   <p>• Double-check all information before proceeding</p>
-                  <p>• Contact support if you need help</p>
+                  <p>• Your data is automatically saved</p>
+                  {!user && <p>• Sign in to save your progress</p>}
                 </div>
               </CardContent>
             </Card>
