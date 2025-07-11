@@ -148,45 +148,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: { message: 'Invalid admin credentials' } };
       }
 
-      // Sign in with admin email and a temporary password (we'll bypass normal auth)
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Create admin session without going through Supabase auth
+      const mockUser = {
+        id: 'admin-user-' + Date.now(),
         email: adminData.email,
-        password: password, // This might fail, so we handle it
-      });
+        user_metadata: { username: username },
+        app_metadata: { role: 'admin' },
+        aud: 'authenticated',
+        role: 'authenticated',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as User;
 
-      if (error) {
-        // Create a temporary session for admin
-        const mockUser = {
-          id: 'admin-user',
-          email: adminData.email,
-          user_metadata: { username: username },
-          app_metadata: {},
-          aud: 'authenticated',
-          role: 'authenticated',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        } as User;
+      const mockSession = {
+        access_token: 'admin-token-' + Date.now(),
+        refresh_token: 'admin-refresh-' + Date.now(),
+        expires_in: 86400, // 24 hours
+        expires_at: Math.floor(Date.now() / 1000) + 86400,
+        token_type: 'bearer',
+        user: mockUser,
+      } as Session;
 
-        const mockSession = {
-          access_token: 'admin-token',
-          refresh_token: 'admin-refresh',
-          expires_in: 3600,
-          expires_at: Math.floor(Date.now() / 1000) + 3600,
-          token_type: 'bearer',
-          user: mockUser,
-        } as Session;
-
-        setSession(mockSession);
-        setUser(mockUser);
-        setIsAdmin(true);
-        return { error: null };
-      }
-
-      console.log('Admin sign in result:', { data, error });
-      return { error };
+      setSession(mockSession);
+      setUser(mockUser);
+      setIsAdmin(true);
+      
+      console.log('Admin sign in successful:', { user: mockUser });
+      return { error: null };
     } catch (error) {
       console.error('Admin sign in error:', error);
-      return { error };
+      return { error: { message: 'Admin login failed' } };
     } finally {
       setLoading(false);
     }
@@ -195,11 +186,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       console.log('Signing out user...');
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Sign out error:', error);
-        throw error;
+      
+      // Only try to sign out from Supabase if it's not an admin session
+      if (user?.id?.startsWith('admin-user-')) {
+        console.log('Admin logout - clearing local state only');
+      } else {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error('Sign out error:', error);
+          throw error;
+        }
       }
+      
       console.log('Sign out successful');
       
       // Clear local state immediately

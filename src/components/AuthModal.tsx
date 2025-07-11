@@ -19,7 +19,7 @@ interface AuthModalProps {
 const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, adminSignIn } = useAuth();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -38,7 +38,12 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
       let result;
       
       if (mode === 'login') {
-        result = await signIn(formData.email, formData.password);
+        // Check if it's admin login (username instead of email)
+        if (formData.email === 'IndiRent' || formData.email.includes('@') === false) {
+          result = await adminSignIn(formData.email, formData.password);
+        } else {
+          result = await signIn(formData.email, formData.password);
+        }
       } else {
         if (formData.password !== formData.confirmPassword) {
           toast({
@@ -107,21 +112,21 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
             </div>
           )}
           
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                className="pl-10"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                required
-              />
-            </div>
-          </div>
+           <div className="space-y-2">
+             <Label htmlFor="email">{mode === 'login' ? 'Email or Username' : 'Email'}</Label>
+             <div className="relative">
+               <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+               <Input
+                 id="email"
+                 type={mode === 'login' ? 'text' : 'email'}
+                 placeholder={mode === 'login' ? 'Enter your email or username' : 'Enter your email'}
+                 className="pl-10"
+                 value={formData.email}
+                 onChange={(e) => handleInputChange('email', e.target.value)}
+                 required
+               />
+             </div>
+           </div>
 
           {mode === 'signup' && (
             <div className="space-y-2">
