@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone, User } from "lucide-react";
+import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone, User, Fingerprint, Smartphone, Stamp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import AuthModal from "@/components/AuthModal";
@@ -66,7 +66,6 @@ const Index = () => {
               <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
             </div>
             <nav className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={() => navigate('/admin')}>Admin</Button>
               {user ? (
                 <Button variant="outline" onClick={handleProfileClick}>
                   <User className="mr-2 h-4 w-4" />
@@ -145,61 +144,40 @@ const Index = () => {
         <div className="container mx-auto">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-blue-600">
-              Everything You Need for Rental Agreements
+              Select A Rent Agreement
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From creation to signing, we've got you covered with professional-grade tools
+              Choose the rental agreement type that suits your needs
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <ServiceCard
               icon={FileText}
-              title="Smart Document Creation"
-              description="AI-powered forms that guide you through every step, ensuring no important detail is missed."
+              title="Rental Agreement with Biometric + Police Intimation"
+              description="Complete rental agreement with biometric verification and police intimation for maximum security."
               price="Free"
-              originalPrice=""
-              features={["Step-by-step guidance", "Legal compliance check", "Custom templates"]}
+              originalPrice="₹200"
+              badge="Upto ₹100 off"
+              features={["Biometric verification", "Police intimation", "Legal compliance", "Digital signatures"]}
             />
             <ServiceCard
-              icon={Shield}
-              title="Legal Compliance"
-              description="Every document is crafted to meet current legal standards and local regulations."
+              icon={Fingerprint}
+              title="Rental Agreement with Biometric"
+              description="Secure rental agreement with biometric authentication for verified identity confirmation."
               price="Free"
-              originalPrice=""
-              features={["Updated legal templates", "Jurisdiction-specific", "Lawyer approved"]}
+              originalPrice="₹150"
+              badge="Upto ₹100 off"
+              features={["Biometric authentication", "Identity verification", "Digital security", "Quick processing"]}
             />
             <ServiceCard
-              icon={Clock}
-              title="Instant Generation"
-              description="Get your professional rental agreement ready in minutes, not days."
+              icon={Stamp}
+              title="Rental Agreement with E-Stamp & Notary"
+              description="Traditional rental agreement with e-stamp paper and notary verification for legal validity."
               price="Free"
-              originalPrice=""
-              features={["5-minute setup", "Instant download", "Multiple formats"]}
-            />
-            <ServiceCard
-              icon={Users}
-              title="Multi-Party Signing"
-              description="Secure digital signing for landlords, tenants, and witnesses."
-              price="Free"
-              originalPrice=""
-              features={["Digital signatures", "Email notifications", "Audit trail"]}
-            />
-            <ServiceCard
-              icon={Download}
-              title="Secure Storage"
-              description="Your documents are safely stored and accessible anytime, anywhere."
-              price="Free"
-              originalPrice=""
-              features={["Cloud storage", "24/7 access", "Backup & sync"]}
-            />
-            <ServiceCard
-              icon={Star}
-              title="Premium Support"
-              description="Get help when you need it with our dedicated customer support team."
-              price="Free"
-              originalPrice=""
-              features={["Live chat support", "Video tutorials", "FAQ resources"]}
+              originalPrice="₹300"
+              badge="Upto ₹100 off"
+              features={["E-stamp paper", "Notary verification", "Legal validity", "Government approved"]}
             />
           </div>
         </div>
