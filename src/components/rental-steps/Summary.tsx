@@ -1,10 +1,14 @@
 
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, CheckCircle, Home, Download, Share2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, FileText, Download, Loader2 } from 'lucide-react';
 import { RentalFormData } from "@/types/rental";
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface SummaryProps {
   formData: RentalFormData;
@@ -12,256 +16,269 @@ interface SummaryProps {
 }
 
 const Summary = ({ formData, onBack }: SummaryProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const completionPercentage = 100;
-  const rentAmount = parseFloat(formData.rentAmount || formData.monthlyRent || '0') || 0;
-  const securityDeposit = parseFloat(formData.securityDeposit || formData.refundableDeposit || '0') || 0;
-  const totalAmount = rentAmount + securityDeposit;
 
-  const handleGoHome = () => {
-    navigate('/');
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit the rental agreement.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Submitting rental agreement:', formData);
+      
+      const { data, error } = await supabase
+        .from('rental_agreements')
+        .insert({
+          landlord_name: formData.landlordName || '',
+          landlord_email: formData.landlordEmail || '',
+          landlord_phone: formData.landlordPhone || '',
+          tenant_name: formData.tenantName || '',
+          tenant_email: formData.tenantEmail || '',
+          tenant_phone: formData.tenantPhone || '',
+          property_address: formData.propertyAddress || `${formData.houseNumber || ''} ${formData.buildingName || ''} ${formData.locality || ''} ${formData.propertyCity || ''}`.trim(),
+          property_type: formData.propertyType || '',
+          rent_amount: parseFloat(formData.monthlyRent || '0'),
+          security_deposit: parseFloat(formData.refundableDeposit || '0'),
+          lease_start_date: formData.agreementStartDate || null,
+          lease_end_date: null, // Calculate based on duration if needed
+          agreement_terms: `Duration: ${formData.agreementDuration || 'Not specified'}, Lock-in Period: ${formData.lockinPeriod || 'Not specified'}`,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Rental agreement created successfully:', data);
+
+      toast({
+        title: "Success!",
+        description: "Rental agreement submitted successfully. You can view it in your profile.",
+      });
+
+      // Navigate to profile to show the new agreement
+      navigate('/profile');
+      
+    } catch (error) {
+      console.error('Error submitting rental agreement:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit rental agreement. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDownloadAgreement = () => {
-    // Generate and download agreement
-    const agreementData = {
-      'Agreement ID': formData.agreementId || 'N/A',
-      'Property Address': formData.propertyAddress || 'Not specified',
-      'Property Type': formData.propertyType || 'Not specified',
-      'Landlord Name': formData.landlordName || 'Not specified',
-      'Landlord Email': formData.landlordEmail || 'Not specified',
-      'Landlord Phone': formData.landlordPhone || 'Not specified',
-      'Tenant Name': formData.tenantName || 'Not specified',
-      'Tenant Email': formData.tenantEmail || 'Not specified',
-      'Tenant Phone': formData.tenantPhone || 'Not specified',
-      'Monthly Rent': `₹${rentAmount.toLocaleString()}`,
-      'Security Deposit': securityDeposit > 0 ? `₹${securityDeposit.toLocaleString()}` : 'N/A',
-      'Agreement Duration': formData.agreementDuration || 'Not specified',
-      'Start Date': formData.agreementStartDate || 'Not specified',
-      'Lock-in Period': formData.lockinPeriod ? `${formData.lockinPeriod} months` : 'Not specified'
-    };
+  const downloadAgreement = () => {
+    // Create a comprehensive agreement document
+    const agreementData = `
+RENTAL AGREEMENT SUMMARY
+========================
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + 
-      Object.entries(agreementData).map(([key, value]) => `${key},${value}`).join('\n');
-    
-    const encodedUri = encodeURI(csvContent);
+PROPERTY DETAILS:
+- Type: ${formData.propertyType || 'Not specified'}
+- Address: ${formData.propertyAddress || `${formData.houseNumber || ''} ${formData.buildingName || ''} ${formData.locality || ''} ${formData.propertyCity || ''}`.trim()}
+- Floor: ${formData.floorNumber || 'Not specified'}
+- Pincode: ${formData.pincode || 'Not specified'}
+
+LANDLORD DETAILS:
+- Name: ${formData.landlordName || 'Not specified'}
+- Email: ${formData.landlordEmail || 'Not specified'}
+- Phone: ${formData.landlordPhone || 'Not specified'}
+- Aadhar: ${formData.landlordAadhar || 'Not specified'}
+- PAN: ${formData.landlordPan || 'Not specified'}
+
+TENANT DETAILS:
+- Name: ${formData.tenantName || 'Not specified'}
+- Email: ${formData.tenantEmail || 'Not specified'}
+- Phone: ${formData.tenantPhone || 'Not specified'}
+- Aadhar: ${formData.tenantAadhar || 'Not specified'}
+- PAN: ${formData.tenantPan || 'Not specified'}
+
+FINANCIAL DETAILS:
+- Monthly Rent: ₹${formData.monthlyRent || '0'}
+- Security Deposit: ₹${formData.refundableDeposit || '0'}
+- Non-refundable Deposit: ₹${formData.nonRefundableDeposit || '0'}
+
+AGREEMENT TERMS:
+- Duration: ${formData.agreementDuration || 'Not specified'}
+- Start Date: ${formData.agreementStartDate || 'Not specified'}
+- Lock-in Period: ${formData.lockinPeriod || 'Not specified'}
+
+WITNESS 1:
+- Name: ${formData.witness1Name || 'Not specified'}
+- Phone: ${formData.witness1Phone || 'Not specified'}
+- Age: ${formData.witness1Age || 'Not specified'}
+- Aadhar: ${formData.witness1Aadhar || 'Not specified'}
+
+WITNESS 2:
+- Name: ${formData.witness2Name || 'Not specified'}
+- Phone: ${formData.witness2Phone || 'Not specified'}
+- Age: ${formData.witness2Age || 'Not specified'}
+- Aadhar: ${formData.witness2Aadhar || 'Not specified'}
+
+Generated on: ${new Date().toLocaleString()}
+    `;
+
+    const blob = new Blob([agreementData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `rental-agreement-${formData.agreementId || 'summary'}.csv`);
+    link.href = url;
+    link.download = `rental-agreement-${Date.now()}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={onBack} className="p-2 hover-lift">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h2 className="text-2xl font-semibold">Agreement Complete!</h2>
-      </div>
-
-      {/* Success Message */}
-      <div className="text-center mb-8 animate-scale-in">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
-          <CheckCircle className="w-10 h-10 text-green-600" />
-        </div>
-        <h3 className="text-3xl font-bold text-foreground mb-3">
-          🎉 Rental Agreement Created Successfully!
-        </h3>
-        <p className="text-lg text-muted-foreground mb-4">
-          Your rental agreement has been saved and is ready for processing.
-        </p>
-        {formData.agreementId && (
-          <div className="inline-flex items-center px-4 py-2 bg-primary/10 rounded-full">
-            <span className="text-sm font-medium text-primary">
-              Agreement ID: {formData.agreementId}
-            </span>
+    <div className="space-y-6 animate-fade-in">
+      <Card className="hover-lift">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Rental Agreement Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Property Details */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3 text-primary">Property Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div><span className="font-medium">Type:</span> {formData.propertyType}</div>
+              <div><span className="font-medium">Floor:</span> {formData.floorNumber}</div>
+              <div className="md:col-span-2"><span className="font-medium">Address:</span> {formData.houseNumber} {formData.buildingName}, {formData.locality}, {formData.propertyCity} - {formData.pincode}</div>
+            </div>
           </div>
-        )}
-      </div>
+
+          <Separator />
+
+          {/* Landlord Details */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3 text-primary">Landlord Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div><span className="font-medium">Name:</span> {formData.landlordName}</div>
+              <div><span className="font-medium">Email:</span> {formData.landlordEmail}</div>
+              <div><span className="font-medium">Phone:</span> {formData.landlordPhone}</div>
+              <div><span className="font-medium">Aadhar:</span> {formData.landlordAadhar}</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Tenant Details */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3 text-primary">Tenant Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div><span className="font-medium">Name:</span> {formData.tenantName}</div>
+              <div><span className="font-medium">Email:</span> {formData.tenantEmail}</div>
+              <div><span className="font-medium">Phone:</span> {formData.tenantPhone}</div>
+              <div><span className="font-medium">Aadhar:</span> {formData.tenantAadhar}</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Financial Details */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3 text-primary">Financial Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div><span className="font-medium">Monthly Rent:</span> ₹{formData.monthlyRent}</div>
+              <div><span className="font-medium">Security Deposit:</span> ₹{formData.refundableDeposit}</div>
+              <div><span className="font-medium">Duration:</span> {formData.agreementDuration}</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Agreement Terms */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3 text-primary">Agreement Terms</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div><span className="font-medium">Start Date:</span> {formData.agreementStartDate}</div>
+              <div><span className="font-medium">Lock-in Period:</span> {formData.lockinPeriod}</div>
+            </div>
+          </div>
+
+          {/* Witnesses */}
+          {(formData.witness1Name || formData.witness2Name) && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="font-semibold text-lg mb-3 text-primary">Witnesses</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {formData.witness1Name && (
+                    <div>
+                      <h4 className="font-medium mb-2">Witness 1</h4>
+                      <div className="text-sm space-y-1">
+                        <div><span className="font-medium">Name:</span> {formData.witness1Name}</div>
+                        <div><span className="font-medium">Phone:</span> {formData.witness1Phone}</div>
+                        <div><span className="font-medium">Age:</span> {formData.witness1Age}</div>
+                      </div>
+                    </div>
+                  )}
+                  {formData.witness2Name && (
+                    <div>
+                      <h4 className="font-medium mb-2">Witness 2</h4>
+                      <div className="text-sm space-y-1">
+                        <div><span className="font-medium">Name:</span> {formData.witness2Name}</div>
+                        <div><span className="font-medium">Phone:</span> {formData.witness2Phone}</div>
+                        <div><span className="font-medium">Age:</span> {formData.witness2Age}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-        <Button 
-          onClick={handleGoHome}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground hover-lift group"
-          size="lg"
-        >
-          <Home className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-          Go to Home
+      <div className="flex flex-col sm:flex-row gap-4 justify-between">
+        <Button variant="outline" onClick={onBack} className="hover-lift group">
+          <ArrowLeft className="mr-2 h-4 w-4 group-hover:translate-x-[-4px] transition-transform" />
+          Back to Edit
         </Button>
-        <Button 
-          variant="outline"
-          onClick={handleDownloadAgreement}
-          className="hover-lift group"
-          size="lg"
-        >
-          <Download className="mr-2 h-5 w-5 group-hover:translate-y-[-2px] transition-transform" />
-          Download Summary
-        </Button>
-        <Button 
-          variant="outline"
-          className="hover-lift group"
-          size="lg"
-        >
-          <Share2 className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
-          Share Agreement
-        </Button>
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Agreement Details */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="hover-lift animate-slide-up">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  📋 Rental Agreement Summary
-                </span>
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-primary" />
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Property Details */}
-              <div className="p-4 bg-muted/50 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                  🏠 Property Details
-                </h4>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Address:</span>
-                    <p className="font-medium">{formData.propertyAddress || 'Not specified'}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Type:</span>
-                    <p className="font-medium">{formData.propertyType || 'Not specified'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rental Terms */}
-              <div className="p-4 bg-primary/5 rounded-lg">
-                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                  💰 Rental Terms
-                </h4>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Monthly Rent:</span>
-                    <p className="font-medium text-lg text-primary">₹{rentAmount.toLocaleString()}</p>
-                  </div>
-                  {securityDeposit > 0 && (
-                    <div>
-                      <span className="text-muted-foreground">Security Deposit:</span>
-                      <p className="font-medium">₹{securityDeposit.toLocaleString()}</p>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-muted-foreground">Duration:</span>
-                    <p className="font-medium">{formData.agreementDuration || 'Not specified'}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Lock-in Period:</span>
-                    <p className="font-medium">{formData.lockinPeriod ? `${formData.lockinPeriod} months` : 'Not specified'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Party Details */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                    🏢 Landlord Details
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="text-muted-foreground">Name:</span> <span className="font-medium">{formData.landlordName || 'Not specified'}</span></p>
-                    <p><span className="text-muted-foreground">Email:</span> <span className="font-medium">{formData.landlordEmail || 'Not specified'}</span></p>
-                    <p><span className="text-muted-foreground">Phone:</span> <span className="font-medium">{formData.landlordPhone || 'Not specified'}</span></p>
-                  </div>
-                </div>
-                
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                    👤 Tenant Details
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <p><span className="text-muted-foreground">Name:</span> <span className="font-medium">{formData.tenantName || 'Not specified'}</span></p>
-                    <p><span className="text-muted-foreground">Email:</span> <span className="font-medium">{formData.tenantEmail || 'Not specified'}</span></p>
-                    <p><span className="text-muted-foreground">Phone:</span> <span className="font-medium">{formData.tenantPhone || 'Not specified'}</span></p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress */}
-              <div className="mt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Agreement Status</span>
-                  <span className="text-sm font-medium text-green-600">Completed ✓</span>
-                </div>
-                <Progress value={completionPercentage} className="h-3" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Summary Card */}
-        <div className="lg:col-span-1">
-          <Card className="hover-lift animate-scale-in" style={{animationDelay: '0.3s'}}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                💸 Payment Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Monthly Rent</span>
-                    <span className="font-medium">₹{rentAmount.toLocaleString()}</span>
-                  </div>
-                  {securityDeposit > 0 && (
-                    <div className="flex justify-between">
-                      <span>Security Deposit</span>
-                      <span className="font-medium">₹{securityDeposit.toLocaleString()}</span>
-                    </div>
-                  )}
-                  <div className="border-t pt-3">
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total Amount</span>
-                      <span className="text-primary">₹{totalAmount.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <p className="text-sm text-green-600 font-medium mb-2">
-                    🎉 Agreement Successfully Created!
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Your rental agreement is now saved in the system and ready for processing.
-                  </p>
-                </div>
-
-                <div className="space-y-2 text-xs text-muted-foreground">
-                  <p className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                    Legally binding document
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                    Expert verified
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                    Ready for signature
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        
+        <div className="flex gap-4">
+          <Button variant="outline" onClick={downloadAgreement} className="hover-lift group">
+            <Download className="mr-2 h-4 w-4 group-hover:translate-y-[-2px] transition-transform" />
+            Download Summary
+          </Button>
+          
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting}
+            className="hover-lift group bg-gradient-to-r from-primary to-secondary"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <FileText className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                Submit Agreement
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </div>
