@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone } from "lucide-react";
@@ -10,7 +11,7 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [showDemo, setShowDemo] = useState(false);
   const navigate = useNavigate();
 
@@ -27,20 +28,23 @@ const Index = () => {
     {
       name: "Rajesh Kumar",
       location: "Mumbai",
-      text: "Created my rental agreement in just 10 minutes. The process was so smooth and professional. Highly recommend!",
-      rating: 5
+      comment: "Created my rental agreement in just 10 minutes. The process was so smooth and professional. Highly recommend!",
+      rating: 5,
+      avatar: "photo-1507003211169-0a1dd7228f2d"
     },
     {
       name: "Priya Sharma",
       location: "Delhi",
-      text: "Finally, a platform that makes legal documents simple. No more lawyer fees for basic agreements!",
-      rating: 5
+      comment: "Finally, a platform that makes legal documents simple. No more lawyer fees for basic agreements!",
+      rating: 5,
+      avatar: "photo-1494790108755-2616b612b786"
     },
     {
       name: "Amit Patel",
       location: "Bangalore",
-      text: "The document quality is excellent and legally compliant. Saved me time and money.",
-      rating: 5
+      comment: "The document quality is excellent and legally compliant. Saved me time and money.",
+      rating: 5,
+      avatar: "photo-1472099645785-5658abf4ff4e"
     }
   ];
 
@@ -80,7 +84,7 @@ const Index = () => {
               <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                 Agreements
               </span>{' '}
-              <span className="text-gray-900">in Minutes</span>
+              <span className="text-blue-600">in Minutes</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Professional, legally compliant rental agreements crafted in minutes. 
@@ -138,37 +142,37 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <ServiceCard
-              icon={<FileText className="h-8 w-8" />}
+              icon={FileText}
               title="Smart Document Creation"
               description="AI-powered forms that guide you through every step, ensuring no important detail is missed."
               features={["Step-by-step guidance", "Legal compliance check", "Custom templates"]}
             />
             <ServiceCard
-              icon={<Shield className="h-8 w-8" />}
+              icon={Shield}
               title="Legal Compliance"
               description="Every document is crafted to meet current legal standards and local regulations."
               features={["Updated legal templates", "Jurisdiction-specific", "Lawyer approved"]}
             />
             <ServiceCard
-              icon={<Clock className="h-8 w-8" />}
+              icon={Clock}
               title="Instant Generation"
               description="Get your professional rental agreement ready in minutes, not days."
               features={["5-minute setup", "Instant download", "Multiple formats"]}
             />
             <ServiceCard
-              icon={<Users className="h-8 w-8" />}
+              icon={Users}
               title="Multi-Party Signing"
               description="Secure digital signing for landlords, tenants, and witnesses."
               features={["Digital signatures", "Email notifications", "Audit trail"]}
             />
             <ServiceCard
-              icon={<Download className="h-8 w-8" />}
+              icon={Download}
               title="Secure Storage"
               description="Your documents are safely stored and accessible anytime, anywhere."
               features={["Cloud storage", "24/7 access", "Backup & sync"]}
             />
             <ServiceCard
-              icon={<Star className="h-8 w-8" />}
+              icon={Star}
               title="Premium Support"
               description="Get help when you need it with our dedicated customer support team."
               features={["Live chat support", "Video tutorials", "FAQ resources"]}
