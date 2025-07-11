@@ -13,6 +13,7 @@ import PropertyDetail from "@/components/rental-steps/PropertyDetail";
 import LandlordDetail from "@/components/rental-steps/LandlordDetail";
 import TenantDetail from "@/components/rental-steps/TenantDetail";
 import WitnessDetail from "@/components/rental-steps/WitnessDetail";
+import DocumentUploadStep from "@/components/DocumentUploadStep";
 import Summary from "@/components/rental-steps/Summary";
 import { RentalFormData } from "@/types/rental";
 import AuthModal from "@/components/AuthModal";
@@ -23,6 +24,7 @@ const RentalAgreement = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<RentalFormData>({});
+  const [rentalAgreementId, setRentalAgreementId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -33,6 +35,7 @@ const RentalAgreement = () => {
     "Landlord Detail",
     "Tenant Detail",
     "Witness Detail",
+    "Upload Documents",
     "Summary"
   ];
 
@@ -48,12 +51,12 @@ const RentalAgreement = () => {
   };
 
   const handleNext = async () => {
-    // If we're on the final step (step 5), save to database
+    // If we're on the witness step (step 5), save to database before going to upload
     if (currentStep === 5) {
       await saveRentalAgreement();
     }
     
-    if (currentStep < 6) {
+    if (currentStep < 7) {
       setCurrentStep(prev => prev + 1);
     }
   };
@@ -187,6 +190,14 @@ const RentalAgreement = () => {
         );
       case 6:
         return (
+          <DocumentUploadStep
+            onNext={handleNext}
+            onBack={handleBack}
+            rentalAgreementId={formData.agreementId}
+          />
+        );
+      case 7:
+        return (
           <Summary
             formData={formData}
             onBack={handleBack}
@@ -266,7 +277,7 @@ const RentalAgreement = () => {
     );
   }
 
-  if (currentStep === 6) {
+  if (currentStep === 7) {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
@@ -330,7 +341,7 @@ const RentalAgreement = () => {
 
       <StepIndicator 
         currentStep={currentStep} 
-        totalSteps={6} 
+        totalSteps={7} 
         stepNames={stepNames} 
       />
 

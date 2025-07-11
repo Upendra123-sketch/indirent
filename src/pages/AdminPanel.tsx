@@ -96,12 +96,12 @@ const AdminPanel = () => {
       console.log('Fetched agreements:', agreementsData);
       setAgreements(agreementsData || []);
 
-      // Fetch documents with rental agreement info
+      // Fetch documents - use left join to get all documents, even without agreements
       const { data: documentsData, error: documentsError } = await supabase
         .from('rental_documents')
         .select(`
           *,
-          rental_agreements!inner(
+          rental_agreements(
             property_address,
             landlord_name,
             tenant_name
