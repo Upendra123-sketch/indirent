@@ -116,6 +116,47 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_documents: {
+        Row: {
+          document_type: string
+          file_name: string
+          file_size: number
+          file_url: string
+          id: string
+          rental_agreement_id: string | null
+          uploaded_at: string
+          user_id: string | null
+        }
+        Insert: {
+          document_type: string
+          file_name: string
+          file_size: number
+          file_url: string
+          id?: string
+          rental_agreement_id?: string | null
+          uploaded_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          document_type?: string
+          file_name?: string
+          file_size?: number
+          file_url?: string
+          id?: string
+          rental_agreement_id?: string | null
+          uploaded_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_documents_rental_agreement_id_fkey"
+            columns: ["rental_agreement_id"]
+            isOneToOne: false
+            referencedRelation: "rental_agreements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

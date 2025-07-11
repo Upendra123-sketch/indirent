@@ -1,190 +1,206 @@
-
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { 
   FileText, 
   Shield, 
-  Clock, 
-  Phone, 
-  Star, 
-  CheckCircle,
-  Users,
+  Users, 
+  Award, 
+  CheckCircle, 
+  ArrowRight, 
+  Play,
+  Phone,
+  Mail,
   MapPin,
-  IndianRupee,
-  ArrowRight,
-  Play
+  Clock,
+  Star,
+  User
 } from "lucide-react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import AuthModal from "@/components/AuthModal";
-import ServiceCard from "@/components/ServiceCard";
-import TestimonialCard from "@/components/TestimonialCard";
-import Footer from "@/components/Footer";
+import DemoVideoModal from "@/components/DemoVideoModal";
+import UserProfile from "@/components/UserProfile";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-
-  const handleAuthClick = (mode: 'login' | 'signup') => {
-    setAuthMode(mode);
-    setIsAuthModalOpen(true);
-  };
-
-  const handleGetStarted = () => {
-    navigate('/rental-agreement');
-  };
+  const { user, isAdmin } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
   const services = [
     {
       title: "Rental Agreement",
-      description: "Get legally binding rental agreements delivered in 24 hours",
-      price: "₹99",
-      originalPrice: "₹500",
+      description: "Create legally binding rental agreements with government approval",
       icon: FileText,
-      badge: "Most Popular",
-      features: ["Legal Expert Verified", "24hr Delivery", "Doorstep Service"]
+      price: "₹1,499",
+      features: ["Government Approved", "Legal Templates", "Quick Processing", "Digital Copy"]
     },
     {
-      title: "Tenant Verification", 
-      description: "Complete background verification of tenants",
-      price: "₹199",
-      originalPrice: "₹999",
+      title: "Document Verification", 
+      description: "Verify documents with biometric authentication",
       icon: Shield,
-      features: ["Police Verification", "Employment Check", "Credit Score"]
+      price: "₹299",
+      features: ["Biometric Scan", "Aadhaar Verification", "Secure Process", "Home Service"]
     },
     {
-      title: "Document Support",
-      description: "Get help with all rental documentation",
-      price: "₹149",
-      originalPrice: "₹299",
-      icon: MapPin,
-      features: ["Legal Consultation", "Document Review", "24/7 Support"]
+      title: "Registration Service",
+      description: "Complete registration with doorstep service",
+      icon: Award,
+      price: "₹999",
+      features: ["Doorstep Service", "Expert Assistance", "Quick Turnaround", "Official Registration"]
     }
   ];
 
   const testimonials = [
     {
-      name: "Rajesh Kumar",
-      location: "Mumbai",
-      rating: 5,
-      comment: "Got my rental agreement in just 12 hours! Excellent service and very professional.",
-      avatar: "photo-1472099645785-5658abf4ff4e"
-    },
-    {
       name: "Priya Sharma",
-      location: "Bangalore", 
-      rating: 5,
-      comment: "RentalAgreement saved me thousands in brokerage. The rental agreement process was smooth.",
-      avatar: "photo-1494790108755-2616b78b6c6c"
+      role: "Property Owner",
+      content: "Excellent service! Got my rental agreement registered within 3 days with doorstep biometric verification.",
+      rating: 5
     },
     {
-      name: "Amit Patel",
-      location: "Delhi",
-      rating: 5,
-      comment: "Best platform for rental services. Quick, reliable and affordable.",
-      avatar: "photo-1507003211169-0a1dd7228f2d"
+      name: "Rajesh Kumar",
+      role: "Tenant", 
+      content: "Very convenient process. The online form was easy to fill and the team was very professional.",
+      rating: 5
+    },
+    {
+      name: "Anita Patel",
+      role: "Real Estate Agent",
+      content: "I recommend this service to all my clients. Government approved and hassle-free process.",
+      rating: 5
     }
   ];
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50 animate-fade-in">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center animate-float">
-                <span className="text-primary-foreground font-bold text-sm">RA</span>
-              </div>
-              <span className="text-xl font-bold text-foreground">RentalAgreement</span>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-6">
-              <a href="#services" className="text-muted-foreground hover:text-primary transition-colors duration-300">Services</a>
-              <a href="#about" className="text-muted-foreground hover:text-primary transition-colors duration-300">About</a>
-              <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors duration-300">Contact</a>
-            </nav>
+  const handleGetStarted = () => {
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      navigate('/rental-agreement');
+    }
+  };
 
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
-                className="text-muted-foreground hover:text-primary transition-all duration-300"
-                onClick={() => handleAuthClick('login')}
-              >
-                Login
-              </Button>
-              <Button 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground hover-lift"
-                onClick={() => handleAuthClick('signup')}
-              >
-                Sign Up
-              </Button>
+  const handleUserProfileClick = () => {
+    setShowUserProfile(true);
+  };
+
+  const handleCloseUserProfile = () => {
+    setShowUserProfile(false);
+  };
+
+  if (showUserProfile) {
+    return <UserProfile />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 animate-slide-up">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">RA</span>
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Rental Agreement
+              </span>
+            </div>
+            <nav className="hidden md:flex items-center space-x-6">
+              <a href="#services" className="text-muted-foreground hover:text-primary transition-colors story-link">Services</a>
+              <a href="#about" className="text-muted-foreground hover:text-primary transition-colors story-link">About</a>
+              <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors story-link">Contact</a>
+            </nav>
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-muted-foreground">Welcome, {user.email}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUserProfileClick}
+                    className="hover-lift"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/admin')}
+                      className="hover-lift"
+                    >
+                      Admin Panel
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAuthModal(true)}
+                  className="hover-lift"
+                >
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-background to-accent/20 text-foreground py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
-        <div className="container mx-auto px-4 relative">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 animate-slide-up">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-                🏆 India's #1 Rental Platform
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-                India's Largest Platform for
-                <span className="block text-primary animate-fade-in" style={{animationDelay: '0.5s'}}>Rental Agreements</span>
-              </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed">
-                Get legally binding rental agreements delivered to your doorstep in 24 hours. 
-                Trusted by 50+ lakh customers across India.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button 
-                  size="lg" 
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 hover-lift animate-scale-in group"
-                  onClick={handleGetStarted}
-                >
-                  Get Rental Agreement
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground hover-lift animate-scale-in"
-                  style={{animationDelay: '0.2s'}}
-                >
-                  <Play className="mr-2 h-5 w-5" />
-                  Watch Demo
-                </Button>
-              </div>
-              <div className="flex items-center space-x-6 text-sm pt-6">
-                <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 mr-2 text-primary" />
-                  <span>Legal Expert Verified</span>
-                </div>
-                <div className="flex items-center">
-                  <Clock className="h-5 w-5 mr-2 text-primary" />
-                  <span>24hr Delivery</span>
-                </div>
-              </div>
+      <section className="py-20 px-4">
+        <div className="container mx-auto text-center">
+          <div className="max-w-4xl mx-auto animate-fade-in">
+            <Badge variant="secondary" className="mb-6 animate-float">
+              <Shield className="mr-2 h-4 w-4" />
+              Government Approved & Secure
+            </Badge>
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 animate-slide-up">
+              Create Legal{" "}
+              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                Rental Agreements
+              </span>{" "}
+              in Minutes
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-slide-up" style={{animationDelay: '0.2s'}}>
+              Get your rental agreement registered with government approval, biometric verification, 
+              and doorstep service. Fast, secure, and legally binding.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-slide-up" style={{animationDelay: '0.4s'}}>
+              <Button 
+                size="lg" 
+                onClick={handleGetStarted}
+                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground px-8 py-6 text-lg hover-lift group"
+              >
+                Get Started Now
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => setShowDemoModal(true)}
+                className="px-8 py-6 text-lg hover-lift group"
+              >
+                <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                Watch Demo
+              </Button>
             </div>
-            <div className="relative animate-float">
-              <img 
-                src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&h=500&fit=crop" 
-                alt="Legal rental agreement document"
-                className="rounded-2xl shadow-2xl hover-lift"
-              />
-              <div className="absolute -bottom-6 -left-6 bg-card p-6 rounded-xl shadow-xl animate-scale-in" style={{animationDelay: '1s'}}>
-                <div className="flex items-center mb-2">
-                  <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                  <span className="ml-2 font-semibold">4.9/5 Rating</span>
-                </div>
-                <p className="text-sm text-muted-foreground">50+ Lakh Happy Customers</p>
+
+            {/* Hero Image */}
+            <div className="relative animate-scale-in" style={{animationDelay: '0.6s'}}>
+              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-8 hover-lift">
+                <img 
+                  src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80" 
+                  alt="Legal rental agreement document" 
+                  className="w-full max-w-2xl mx-auto rounded-lg shadow-2xl"
+                />
               </div>
             </div>
           </div>
@@ -192,104 +208,262 @@ const Index = () => {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
+      <section id="services" className="py-20 px-4 bg-white/50">
+        <div className="container mx-auto">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl font-bold text-foreground mb-4">Our Services</h2>
-            <p className="text-xl text-muted-foreground">Everything you need for rental properties</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Our Services</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Comprehensive rental agreement solutions with government approval and legal compliance
+            </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <div key={index} className="animate-slide-up card-hover" style={{animationDelay: `${index * 0.2}s`}}>
-                <ServiceCard {...service} />
-              </div>
-            ))}
+            {services.map((service, index) => {
+              const IconComponent = service.icon;
+              return (
+                <Card 
+                  key={service.title} 
+                  className="hover-lift animate-slide-up transition-all duration-300 hover:shadow-xl"
+                  style={{animationDelay: `${index * 0.2}s`}}
+                >
+                  <CardHeader className="text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <IconComponent className="h-8 w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                    <CardDescription className="text-base">{service.description}</CardDescription>
+                    <div className="text-2xl font-bold text-primary mt-2">{service.price}</div>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {service.features.map((feature) => (
+                        <li key={feature} className="flex items-center text-sm">
+                          <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button className="w-full mt-6 hover-lift" onClick={handleGetStarted}>
+                      Choose Plan
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl font-bold text-foreground mb-4">Why Choose RentalAgreement?</h2>
-            <p className="text-xl text-muted-foreground">Trusted by millions across India</p>
-          </div>
-          
-          <div className="grid md:grid-cols-4 gap-8">
-            {[
-              { icon: Users, title: "50+ Lakh Customers", desc: "Trusted by millions of users across India", color: "bg-blue-100 text-blue-600" },
-              { icon: Shield, title: "100% Legal", desc: "All documents verified by legal experts", color: "bg-green-100 text-green-600" },
-              { icon: Clock, title: "Quick Delivery", desc: "Get your documents in 24 hours", color: "bg-orange-100 text-orange-600" },
-              { icon: IndianRupee, title: "Zero Brokerage", desc: "Save lakhs in brokerage fees", color: "bg-purple-100 text-purple-600" }
-            ].map((feature, index) => (
-              <div key={index} className="text-center animate-slide-up hover-lift" style={{animationDelay: `${index * 0.1}s`}}>
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${feature.color}`}>
-                  <feature.icon className="h-8 w-8" />
+      {/* About Section */}
+      <section id="about" className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="animate-slide-up">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                About Our Service
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                We provide government-approved rental agreement services with biometric verification 
+                and doorstep registration. Our platform ensures legal compliance and hassle-free 
+                documentation for landlords and tenants across Maharashtra.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                  <span className="text-foreground">Government of Maharashtra Approved</span>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.desc}</p>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                  <span className="text-foreground">Biometric & Aadhaar Verification</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                  <span className="text-foreground">Doorstep Service Available</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                  <span className="text-foreground">3-4 Days Processing Time</span>
+                </div>
               </div>
-            ))}
+            </div>
+            <div className="animate-scale-in">
+              <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-8 hover-lift">
+                <img 
+                  src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=600&q=80" 
+                  alt="Professional service team" 
+                  className="w-full rounded-lg"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
+      <section className="py-20 px-4 bg-white/50">
+        <div className="container mx-auto">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl font-bold text-foreground mb-4">What Our Customers Say</h2>
-            <p className="text-xl text-muted-foreground">Real reviews from real customers</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">What Our Clients Say</h2>
+            <p className="text-xl text-muted-foreground">
+              Trusted by thousands of landlords and tenants across Maharashtra
+            </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="animate-slide-up card-hover" style={{animationDelay: `${index * 0.2}s`}}>
-                <TestimonialCard {...testimonial} />
-              </div>
+              <Card 
+                key={testimonial.name} 
+                className="hover-lift animate-slide-up"
+                style={{animationDelay: `${index * 0.2}s`}}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
+                  <div>
+                    <p className="font-semibold text-foreground">{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Contact Section */}
+      <section id="contact" className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Contact Us</h2>
+            <p className="text-xl text-muted-foreground">
+              Get in touch with our team for any assistance
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="hover-lift animate-slide-up text-center">
+              <CardContent className="p-6">
+                <Phone className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Phone</h3>
+                <p className="text-muted-foreground">+91 98765 43210</p>
+                <p className="text-muted-foreground">Mon-Sat 9AM-7PM</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover-lift animate-slide-up text-center" style={{animationDelay: '0.2s'}}>
+              <CardContent className="p-6">
+                <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Email</h3>
+                <p className="text-muted-foreground">support@rentalagreement.com</p>
+                <p className="text-muted-foreground">24/7 Support</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover-lift animate-slide-up text-center" style={{animationDelay: '0.4s'}}>
+              <CardContent className="p-6">
+                <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Office</h3>
+                <p className="text-muted-foreground">Mumbai, Maharashtra</p>
+                <p className="text-muted-foreground">India</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-        <div className="container mx-auto px-4 text-center animate-fade-in">
-          <h2 className="text-4xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join 50+ lakh customers who trust us for their rental needs
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <section className="py-20 px-4 bg-gradient-to-r from-primary to-secondary">
+        <div className="container mx-auto text-center">
+          <div className="max-w-3xl mx-auto animate-fade-in">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
+              Ready to Create Your Rental Agreement?
+            </h2>
+            <p className="text-xl text-primary-foreground/90 mb-8">
+              Join thousands of satisfied customers who trust our government-approved service
+            </p>
             <Button 
               size="lg" 
-              className="bg-white text-primary hover:bg-gray-100 hover-lift"
+              variant="secondary"
               onClick={handleGetStarted}
+              className="px-8 py-6 text-lg hover-lift group"
             >
-              Get Started Today
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-primary hover-lift"
-            >
-              <Phone className="mr-2 h-5 w-5" />
-              Call Now: +91-9999999999
+              Start Your Agreement
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>
       </section>
 
-      <Footer />
-      
-      <AuthModal 
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        mode={authMode}
-        onModeChange={setAuthMode}
-      />
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div className="animate-slide-up">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">RA</span>
+                </div>
+                <span className="text-xl font-bold">Rental Agreement</span>
+              </div>
+              <p className="text-gray-400">
+                Government approved rental agreement services with biometric verification and doorstep registration.
+              </p>
+            </div>
+            
+            <div className="animate-slide-up" style={{animationDelay: '0.2s'}}>
+              <h3 className="text-lg font-semibold mb-4">Services</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Rental Agreement</li>
+                <li>Document Verification</li>
+                <li>Registration Service</li>
+                <li>Legal Consultation</li>
+              </ul>
+            </div>
+            
+            <div className="animate-slide-up" style={{animationDelay: '0.4s'}}>
+              <h3 className="text-lg font-semibold mb-4">Support</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>Help Center</li>
+                <li>Contact Us</li>
+                <li>Privacy Policy</li>
+                <li>Terms of Service</li>
+              </ul>
+            </div>
+            
+            <div className="animate-slide-up" style={{animationDelay: '0.6s'}}>
+              <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
+              <div className="space-y-2 text-gray-400">
+                <p className="flex items-center">
+                  <Phone className="h-4 w-4 mr-2" />
+                  +91 98765 43210
+                </p>
+                <p className="flex items-center">
+                  <Mail className="h-4 w-4 mr-2" />
+                  support@rentalagreement.com
+                </p>
+                <p className="flex items-center">
+                  <Clock className="h-4 w-4 mr-2" />
+                  Mon-Sat 9AM-7PM
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <Separator className="my-8 bg-gray-700" />
+          
+          <div className="text-center text-gray-400">
+            <p>&copy; 2024 Rental Agreement. All rights reserved. | Government of Maharashtra Approved</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Modals */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <DemoVideoModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
     </div>
   );
 };

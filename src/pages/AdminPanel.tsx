@@ -1,103 +1,88 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  Download, 
-  Users, 
   FileText, 
-  Calendar, 
-  Search,
-  Eye,
-  Trash2,
-  LogOut
-} from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+  Users, 
+  Download, 
+  Eye, 
+  Calendar,
+  DollarSign,
+  TrendingUp,
+  ArrowLeft
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 
 interface RentalAgreement {
   id: string;
-  landlord_name: string;
-  tenant_name: string;
   property_address: string;
   rent_amount: number;
-  created_at: string;
   status: string;
-  landlord_email?: string;
-  tenant_email?: string;
-  landlord_phone?: string;
-  tenant_phone?: string;
-  security_deposit?: number;
-  lease_start_date?: string;
-  lease_end_date?: string;
-  property_type?: string;
-  agreement_terms?: string;
+  created_at: string;
+  landlord_name: string;
+  tenant_name: string;
+  landlord_email: string;
+  tenant_email: string;
+}
+
+interface RentalDocument {
+  id: string;
+  document_type: string;
+  file_name: string;
+  file_size: number;
+  file_url: string;
+  uploaded_at: string;
+  rental_agreement_id: string;
 }
 
 const AdminPanel = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [rentalAgreements, setRentalAgreements] = useState<RentalAgreement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    total: 0,
-    completed: 0,
-    pending: 0,
-    thisMonth: 0
-  });
-
-  const { user, isAdmin, signOut } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
+  const { toast } = useToast();
+  const [agreements, setAgreements] = useState<RentalAgreement[]>([]);
+  const [documents, setDocuments] = useState<RentalDocument[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user || !isAdmin) {
       navigate('/');
       return;
     }
-    fetchRentalAgreements();
+    
+    fetchData();
   }, [user, isAdmin, navigate]);
 
-  const fetchRentalAgreements = async () => {
+  const fetchData = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch rental agreements
+      const { data: agreementsData, error: agreementsError } = await supabase
         .from('rental_agreements')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (agreementsError) throw agreementsError;
+      setAgreements(agreementsData || []);
 
-      setRentalAgreements(data || []);
-      
-      // Calculate stats
-      const total = data?.length || 0;
-      const completed = data?.filter(item => item.status === 'completed').length || 0;
-      const pending = data?.filter(item => item.status === 'pending').length || 0;
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const thisMonth = data?.filter(item => {
-        const createdDate = new Date(item.created_at);
-        return createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear;
-      }).length || 0;
+      // Fetch documents
+      const { data: documentsData, error: documentsError } = await supabase
+        .from('rental_documents')
+        .select('*')
+        .order('uploaded_at', { ascending: false });
 
-      setStats({ total, completed, pending, thisMonth });
+      if (documentsError) throw documentsError;
+      setDocuments(documentsData || []);
+
     } catch (error) {
-      console.error('Error fetching rental agreements:', error);
+      console.error('Error fetching data:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch rental agreements",
+        description: "Failed to fetch data. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -105,140 +90,118 @@ const AdminPanel = () => {
     }
   };
 
-  const handleDownloadAll = () => {
-    const csvContent = generateCSV(rentalAgreements);
-    downloadCSV(csvContent, 'all-rental-agreements.csv');
-  };
-
-  const handleDownloadSingle = (agreement: RentalAgreement) => {
-    const csvContent = generateCSV([agreement]);
-    downloadCSV(csvContent, `rental-agreement-${agreement.id}.csv`);
-  };
-
-  const generateCSV = (data: RentalAgreement[]) => {
-    const headers = [
-      'Agreement ID', 'Landlord Name', 'Landlord Email', 'Landlord Phone',
-      'Tenant Name', 'Tenant Email', 'Tenant Phone', 'Property Address',
-      'Property Type', 'Rent Amount', 'Security Deposit', 'Lease Start Date',
-      'Lease End Date', 'Status', 'Created Date', 'Agreement Terms'
-    ];
-
-    const csvRows = [
-      headers.join(','),
-      ...data.map(item => [
-        item.id,
-        item.landlord_name,
-        item.landlord_email || '',
-        item.landlord_phone || '',
-        item.tenant_name,
-        item.tenant_email || '',
-        item.tenant_phone || '',
-        `"${item.property_address}"`,
-        item.property_type || '',
-        item.rent_amount,
-        item.security_deposit || '',
-        item.lease_start_date || '',
-        item.lease_end_date || '',
-        item.status,
-        new Date(item.created_at).toLocaleDateString(),
-        `"${item.agreement_terms || ''}"`
-      ].join(','))
-    ];
-
-    return csvRows.join('\n');
-  };
-
-  const downloadCSV = (csvContent: string, filename: string) => {
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this rental agreement?')) return;
-
+  const downloadDocument = async (document: RentalDocument) => {
     try {
-      const { error } = await supabase
-        .from('rental_agreements')
-        .delete()
-        .eq('id', id);
+      const { data, error } = await supabase.storage
+        .from('rental-documents')
+        .download(document.file_url.split('/').pop() || '');
 
       if (error) throw error;
 
+      const url = URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = document.file_name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
       toast({
         title: "Success",
-        description: "Rental agreement deleted successfully",
+        description: "Document downloaded successfully",
       });
-      
-      fetchRentalAgreements();
     } catch (error) {
-      console.error('Error deleting rental agreement:', error);
+      console.error('Download error:', error);
       toast({
         title: "Error",
-        description: "Failed to delete rental agreement",
+        description: "Failed to download document",
         variant: "destructive",
       });
     }
   };
 
-  const handleSignOut = async () => {
+  const updateAgreementStatus = async (id: string, status: string) => {
     try {
-      await signOut();
-      navigate('/');
+      const { error } = await supabase
+        .from('rental_agreements')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAgreements(prev => 
+        prev.map(agreement => 
+          agreement.id === id ? { ...agreement, status } : agreement
+        )
+      );
+
+      toast({
+        title: "Success",
+        description: "Agreement status updated successfully",
+      });
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('Update error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive",
+      });
     }
   };
 
-  const filteredAgreements = rentalAgreements.filter(agreement => {
-    const matchesSearch = agreement.landlord_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         agreement.tenant_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         agreement.id.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = selectedFilter === "all" || agreement.status.toLowerCase() === selectedFilter.toLowerCase();
-    
-    return matchesSearch && matchesFilter;
-  });
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR'
+    }).format(amount);
+  };
 
-  if (!user || !isAdmin) {
-    return null;
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
+  const totalRevenue = agreements.reduce((sum, agreement) => sum + agreement.rent_amount, 0);
+  const pendingAgreements = agreements.filter(a => a.status === 'pending').length;
+  const completedAgreements = agreements.filter(a => a.status === 'completed').length;
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">RA</span>
-              </div>
-              <span className="text-xl font-bold text-foreground">Admin Panel</span>
-            </div>
-            
             <div className="flex items-center space-x-4">
               <Button 
-                onClick={handleDownloadAll}
-                className="bg-primary hover:bg-primary/90"
+                variant="ghost" 
+                onClick={() => navigate('/')}
+                className="p-2 hover-lift"
               >
-                <Download className="mr-2 h-4 w-4" />
-                Download All Data
+                <ArrowLeft className="h-5 w-5" />
               </Button>
-              <Button 
-                variant="outline"
-                onClick={handleSignOut}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">A</span>
+                </div>
+                <span className="text-xl font-bold text-gray-800">Admin Panel</span>
+              </div>
             </div>
+            <Badge variant="secondary" className="animate-float">
+              <Users className="mr-1 h-3 w-3" />
+              Admin Access
+            </Badge>
           </div>
         </div>
       </header>
@@ -246,171 +209,199 @@ const AdminPanel = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Agreements
-              </CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{stats.total}</div>
+          <Card className="hover-lift animate-slide-up">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Agreements</p>
+                  <p className="text-2xl font-bold text-foreground">{agreements.length}</p>
+                </div>
+                <FileText className="h-8 w-8 text-primary" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Completed
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{stats.completed}</div>
+          <Card className="hover-lift animate-slide-up" style={{animationDelay: '0.1s'}}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-2xl font-bold text-yellow-600">{pendingAgreements}</p>
+                </div>
+                <Calendar className="h-8 w-8 text-yellow-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Pending
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{stats.pending}</div>
+          <Card className="hover-lift animate-slide-up" style={{animationDelay: '0.2s'}}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-2xl font-bold text-green-600">{completedAgreements}</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-green-600" />
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                This Month
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{stats.thisMonth}</div>
+          <Card className="hover-lift animate-slide-up" style={{animationDelay: '0.3s'}}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Revenue</p>
+                  <p className="text-2xl font-bold text-primary">{formatCurrency(totalRevenue)}</p>
+                </div>
+                <DollarSign className="h-8 w-8 text-primary" />
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters and Search */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Rental Agreements Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <div className="flex-1">
-                <Label htmlFor="search">Search</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="search"
-                    placeholder="Search by landlord, tenant, or agreement ID..."
-                    className="pl-10"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="w-full md:w-48">
-                <Label htmlFor="filter">Filter by Status</Label>
-                <select
-                  id="filter"
-                  className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  value={selectedFilter}
-                  onChange={(e) => setSelectedFilter(e.target.value)}
-                >
-                  <option value="all">All Status</option>
-                  <option value="completed">Completed</option>
-                  <option value="pending">Pending</option>
-                </select>
-              </div>
-            </div>
+        {/* Main Content */}
+        <Tabs defaultValue="agreements" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 animate-fade-in">
+            <TabsTrigger value="agreements" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Rental Agreements
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Documents
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Data Table */}
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Agreement ID</TableHead>
-                    <TableHead>Landlord</TableHead>
-                    <TableHead>Tenant</TableHead>
-                    <TableHead>Property</TableHead>
-                    <TableHead>Rent</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">
-                        Loading...
-                      </TableCell>
-                    </TableRow>
-                  ) : filteredAgreements.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">
-                        No rental agreements found
-                      </TableCell>
-                    </TableRow>
+          {/* Agreements Tab */}
+          <TabsContent value="agreements" className="space-y-6">
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle>All Rental Agreements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {agreements.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No rental agreements found</p>
+                    </div>
                   ) : (
-                    filteredAgreements.map((agreement) => (
-                      <TableRow key={agreement.id}>
-                        <TableCell className="font-medium">{agreement.id.slice(0, 8)}...</TableCell>
-                        <TableCell>{agreement.landlord_name}</TableCell>
-                        <TableCell>{agreement.tenant_name}</TableCell>
-                        <TableCell className="max-w-xs truncate">{agreement.property_address}</TableCell>
-                        <TableCell>₹{agreement.rent_amount.toLocaleString()}</TableCell>
-                        <TableCell>{new Date(agreement.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            agreement.status === 'completed' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {agreement.status}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => console.log(`View ${agreement.id}`)}
-                            >
-                              <Eye className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDownloadSingle(agreement)}
-                            >
-                              <Download className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-destructive hover:text-destructive"
-                              onClick={() => handleDelete(agreement.id)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                    agreements.map((agreement, index) => (
+                      <div 
+                        key={agreement.id} 
+                        className="p-4 border rounded-lg hover:shadow-md transition-all duration-300 hover-lift animate-slide-up"
+                        style={{animationDelay: `${index * 0.1}s`}}
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-foreground mb-2">
+                              {agreement.property_address}
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                              <div>
+                                <p className="text-muted-foreground">Landlord</p>
+                                <p className="font-medium">{agreement.landlord_name}</p>
+                                <p className="text-xs text-muted-foreground">{agreement.landlord_email}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Tenant</p>
+                                <p className="font-medium">{agreement.tenant_name}</p>
+                                <p className="text-xs text-muted-foreground">{agreement.tenant_email}</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Rent Amount</p>
+                                <p className="font-medium text-lg text-primary">
+                                  {formatCurrency(agreement.rent_amount)}
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                          <div className="flex flex-col items-end space-y-2">
+                            <Badge 
+                              variant={agreement.status === 'pending' ? 'secondary' : 'default'}
+                              className="mb-2"
+                            >
+                              {agreement.status}
+                            </Badge>
+                            <div className="flex space-x-2">
+                              {agreement.status === 'pending' && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateAgreementStatus(agreement.id, 'completed')}
+                                  className="hover-lift"
+                                >
+                                  Mark Complete
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Created: {new Date(agreement.created_at).toLocaleDateString()} • 
+                          ID: {agreement.id.substring(0, 8)}...
+                        </div>
+                      </div>
                     ))
                   )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Documents Tab */}
+          <TabsContent value="documents" className="space-y-6">
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle>Uploaded Documents</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {documents.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Download className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No documents found</p>
+                    </div>
+                  ) : (
+                    documents.map((document, index) => (
+                      <div 
+                        key={document.id} 
+                        className="p-4 border rounded-lg hover:shadow-md transition-all duration-300 hover-lift animate-slide-up"
+                        style={{animationDelay: `${index * 0.1}s`}}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-start space-x-3">
+                            <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                            <div>
+                              <h4 className="font-medium text-foreground">{document.file_name}</h4>
+                              <div className="text-sm text-muted-foreground space-y-1">
+                                <p>Type: {document.document_type}</p>
+                                <p>Size: {formatFileSize(document.file_size)}</p>
+                                <p>Uploaded: {new Date(document.uploaded_at).toLocaleDateString()}</p>
+                                {document.rental_agreement_id && (
+                                  <p>Agreement ID: {document.rental_agreement_id.substring(0, 8)}...</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => downloadDocument(document)}
+                              className="hover-lift group"
+                            >
+                              <Download className="mr-2 h-4 w-4 group-hover:translate-y-[-2px] transition-transform" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
