@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { RentalFormData } from "@/types/rental";
+import FileUpload from "@/components/FileUpload";
 
 interface TenantDetailProps {
   formData: RentalFormData;
@@ -15,6 +16,23 @@ interface TenantDetailProps {
 }
 
 const TenantDetail = ({ formData, onInputChange, onNext, onBack }: TenantDetailProps) => {
+  const handleFileUpload = (files: File[]) => {
+    console.log('Files uploaded:', files);
+    // Handle file upload logic here
+  };
+
+  const validateAadhar = (value: string) => {
+    // Remove any non-digit characters
+    const digits = value.replace(/\D/g, '');
+    // Limit to 12 digits
+    return digits.slice(0, 12);
+  };
+
+  const handleAadharChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const validatedValue = validateAadhar(e.target.value);
+    onInputChange('tenantAadhar', validatedValue);
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-4 bg-blue-50 border-blue-200">
@@ -69,23 +87,32 @@ const TenantDetail = ({ formData, onInputChange, onNext, onBack }: TenantDetailP
           id="tenantAadhar"
           placeholder="Enter Aadhar Number"
           value={formData.tenantAadhar || ''}
-          onChange={(e) => onInputChange('tenantAadhar', e.target.value)}
+          onChange={handleAadharChange}
+          maxLength={12}
+          pattern="[0-9]{12}"
           required
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          {formData.tenantAadhar?.length || 0}/12 digits
+        </p>
+      </div>
+
+      <div>
+        <FileUpload
+          onFileUpload={handleFileUpload}
+          acceptedTypes=".jpg,.jpeg,.png"
+          maxFiles={1}
+          label="Aadhar Front (JPG/PNG only)"
         />
       </div>
 
       <div>
-        <Label>Aadhar Front (image/pdf only)</Label>
-        <Button variant="outline" className="w-full mt-2">
-          Select Document
-        </Button>
-      </div>
-
-      <div>
-        <Label>Aadhar Back (image/pdf only)</Label>
-        <Button variant="outline" className="w-full mt-2">
-          Select Document
-        </Button>
+        <FileUpload
+          onFileUpload={handleFileUpload}
+          acceptedTypes=".jpg,.jpeg,.png"
+          maxFiles={1}
+          label="Aadhar Back (JPG/PNG only)"
+        />
       </div>
 
       <div>
@@ -100,10 +127,12 @@ const TenantDetail = ({ formData, onInputChange, onNext, onBack }: TenantDetailP
       </div>
 
       <div>
-        <Label>PAN Card Front (image/pdf only)</Label>
-        <Button variant="outline" className="w-full mt-2">
-          Select Document
-        </Button>
+        <FileUpload
+          onFileUpload={handleFileUpload}
+          acceptedTypes=".jpg,.jpeg,.png"
+          maxFiles={1}
+          label="PAN Card Front (JPG/PNG only)"
+        />
       </div>
 
       <div>

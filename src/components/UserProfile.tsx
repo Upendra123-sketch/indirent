@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { User, FileText, Edit3, LogOut, Download } from 'lucide-react';
+import { User, FileText, Edit3, LogOut, Download, Home } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface RentalAgreement {
   id: string;
@@ -23,6 +23,7 @@ interface RentalAgreement {
 const UserProfile = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
@@ -109,11 +110,25 @@ const UserProfile = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    toast({
-      title: "Signed out",
-      description: "You have been successfully signed out.",
-    });
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleHomeClick = () => {
+    navigate('/');
   };
 
   const downloadAgreement = (agreement: RentalAgreement) => {
@@ -144,9 +159,19 @@ Created: ${new Date(agreement.created_at).toLocaleDateString()}
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 p-4">
       <div className="container mx-auto max-w-4xl">
-        <div className="mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-foreground mb-2">User Profile</h1>
-          <p className="text-muted-foreground">Manage your account and rental agreements</p>
+        <div className="mb-8 animate-fade-in flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">User Profile</h1>
+            <p className="text-muted-foreground">Manage your account and rental agreements</p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={handleHomeClick}
+            className="hover-lift group"
+          >
+            <Home className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+            Home
+          </Button>
         </div>
 
         {/* Navigation Tabs */}

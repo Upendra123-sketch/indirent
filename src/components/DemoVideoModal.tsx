@@ -39,21 +39,11 @@ const DemoVideoModal = ({ isOpen, onClose }: DemoVideoModalProps) => {
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto animate-scale-in">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center mb-6">
-            How Our Process Works
+            How It Works
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-8">
-          {/* Video Placeholder */}
-          <div className="relative w-full h-64 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center animate-fade-in">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <div className="w-0 h-0 border-l-[12px] border-l-primary border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
-              </div>
-              <p className="text-muted-foreground">Demo Video Coming Soon</p>
-            </div>
-          </div>
-
           {/* Process Steps */}
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-center mb-6">Our 3-Step Process</h3>

@@ -16,7 +16,10 @@ import {
   MapPin,
   Clock,
   Star,
-  User
+  User,
+  Navigation,
+  MessageCircle,
+  CheckSquare
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,6 +80,49 @@ const Index = () => {
     }
   ];
 
+  const addOns = [
+    {
+      title: "Extra Visit for Biometric",
+      description: "Get you biometric done from anywhere anytime",
+      icon: Navigation,
+      bgColor: "bg-red-50",
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600"
+    },
+    {
+      title: "Tech Assistance",
+      description: "Get technical assistance for distant registration",
+      icon: MessageCircle,
+      bgColor: "bg-blue-50",
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600"
+    },
+    {
+      title: "Tenant Verification",
+      description: "Verify your tenant's identity instantly.",
+      icon: CheckSquare,
+      bgColor: "bg-yellow-50",
+      iconBg: "bg-yellow-100",
+      iconColor: "text-yellow-600"
+    },
+    {
+      title: "Hardcopy Delivery",
+      description: "Hardcopy delivery at your Doorstep",
+      icon: FileText,
+      bgColor: "bg-red-50",
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600"
+    },
+    {
+      title: "Power Of Attorney",
+      description: "Drafting of Power Of Attorney.",
+      icon: Award,
+      bgColor: "bg-blue-50",
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600"
+    }
+  ];
+
   const handleGetStarted = () => {
     if (!user) {
       setAuthMode('signup');
@@ -120,7 +166,7 @@ const Index = () => {
             <nav className="hidden md:flex items-center space-x-6">
               <a href="#services" className="text-muted-foreground hover:text-primary transition-colors story-link">Services</a>
               <a href="#about" className="text-muted-foreground hover:text-primary transition-colors story-link">About</a>
-              <a href="#contact" className="text-muted-foreground hover:text-primary transition-colors story-link">Contact</a>
+              <a href="#addons" className="text-muted-foreground hover:text-primary transition-colors story-link">Add Ons</a>
             </nav>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -196,7 +242,7 @@ const Index = () => {
                 className="px-8 py-6 text-lg hover-lift group"
               >
                 <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                Watch Demo
+                How it Work
               </Button>
             </div>
 
@@ -341,43 +387,36 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 px-4">
+      {/* Add Ons Section */}
+      <section id="addons" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Contact Us</h2>
-            <p className="text-xl text-muted-foreground">
-              Get in touch with our team for any assistance
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Available Add ons</h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="hover-lift animate-slide-up text-center">
-              <CardContent className="p-6">
-                <Phone className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Phone</h3>
-                <p className="text-muted-foreground">+91 98765 43210</p>
-                <p className="text-muted-foreground">Mon-Sat 9AM-7PM</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover-lift animate-slide-up text-center" style={{animationDelay: '0.2s'}}>
-              <CardContent className="p-6">
-                <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Email</h3>
-                <p className="text-muted-foreground">support@rentalagreement.com</p>
-                <p className="text-muted-foreground">24/7 Support</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="hover-lift animate-slide-up text-center" style={{animationDelay: '0.4s'}}>
-              <CardContent className="p-6">
-                <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Office</h3>
-                <p className="text-muted-foreground">Mumbai, Maharashtra</p>
-                <p className="text-muted-foreground">India</p>
-              </CardContent>
-            </Card>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {addOns.map((addon, index) => {
+              const IconComponent = addon.icon;
+              return (
+                <Card 
+                  key={addon.title} 
+                  className={`hover-lift animate-slide-up transition-all duration-300 hover:shadow-lg ${addon.bgColor}`}
+                  style={{animationDelay: `${index * 0.1}s`}}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4">
+                      <div className={`w-12 h-12 ${addon.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                        <IconComponent className={`h-6 w-6 ${addon.iconColor}`} />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-2">{addon.title}</h3>
+                        <p className="text-sm text-muted-foreground">{addon.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
