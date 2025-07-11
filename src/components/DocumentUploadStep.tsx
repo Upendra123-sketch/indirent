@@ -124,12 +124,9 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
 
   const uploadFiles = async () => {
     if (!user || uploadedFiles.length === 0) {
-      console.log('Upload failed: missing user or files', { user: !!user, fileCount: uploadedFiles.length });
       return;
     }
 
-    console.log('Starting upload for user:', user.id);
-    console.log('User object:', user);
     setUploading(true);
     
     try {
@@ -137,15 +134,12 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         
-        console.log('Uploading file to storage:', fileName);
-        
         // Upload to Supabase Storage
         const { error: uploadError } = await supabase.storage
           .from('rental-documents')
           .upload(fileName, file);
 
         if (uploadError) {
-          console.error('Storage upload error:', uploadError);
           throw uploadError;
         }
 
@@ -154,45 +148,22 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
           .from('rental-documents')
           .getPublicUrl(fileName);
 
-        console.log('File uploaded to storage, saving to database...');
-
-        // Debug: Log the current session
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        console.log('Current session:', sessionData?.session?.user?.id);
-        console.log('Session error:', sessionError);
-
-        // Create the document data with explicit typing
-        const documentData = {
-          rental_agreement_id: rentalAgreementId || null,
-          user_id: user.id,
-          document_type: selectedDocumentType,
-          file_name: file.name,
-          file_size: file.size,
-          file_url: publicUrl,
-        };
-
-        console.log('About to insert document data:', documentData);
-        console.log('Table name: rental_documents');
-
-        // Try the insert with additional debugging
-        const { data: insertData, error: dbError } = await supabase
+        // Save to database
+        const { error: dbError } = await supabase
           .from('rental_documents')
-          .insert(documentData)
-          .select();
-
-        console.log('Insert result:', { data: insertData, error: dbError });
+          .insert({
+            rental_agreement_id: rentalAgreementId || null,
+            user_id: user.id,
+            document_type: selectedDocumentType,
+            file_name: file.name,
+            file_size: file.size,
+            file_url: publicUrl,
+          });
 
         if (dbError) {
-          console.error('Database insert error details:', {
-            message: dbError.message,
-            code: dbError.code,
-            details: dbError.details,
-            hint: dbError.hint
-          });
           throw dbError;
         }
 
-        console.log('Document saved successfully:', insertData);
         return fileName;
       });
 
