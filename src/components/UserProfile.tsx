@@ -42,6 +42,32 @@ const UserProfile = () => {
     }
   }, [user]);
 
+  // Set up real-time subscription for agreement status updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('rental_agreements_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'rental_agreements'
+        },
+        (payload) => {
+          console.log('Agreement updated:', payload);
+          // Refresh agreements when any agreement is updated
+          fetchAgreements();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchProfile = async () => {
     try {
       const { data, error } = await supabase

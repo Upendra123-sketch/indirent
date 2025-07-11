@@ -12,7 +12,9 @@ import {
   Calendar,
   DollarSign,
   TrendingUp,
-  ArrowLeft
+  ArrowLeft,
+  Image as ImageIcon,
+  FileImage
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,13 +24,20 @@ import { useToast } from "@/hooks/use-toast";
 interface RentalAgreement {
   id: string;
   property_address: string;
+  property_type: string;
   rent_amount: number;
+  security_deposit: number;
+  lease_start_date: string;
+  lease_end_date: string;
+  agreement_terms: string;
   status: string;
   created_at: string;
   landlord_name: string;
-  tenant_name: string;
   landlord_email: string;
+  landlord_phone: string;
+  tenant_name: string;
   tenant_email: string;
+  tenant_phone: string;
 }
 
 interface RentalDocument {
@@ -39,6 +48,11 @@ interface RentalDocument {
   file_url: string;
   uploaded_at: string;
   rental_agreement_id: string;
+  rental_agreements?: {
+    property_address: string;
+    landlord_name: string;
+    tenant_name: string;
+  };
 }
 
 const AdminPanel = () => {
@@ -68,7 +82,7 @@ const AdminPanel = () => {
         throw new Error('Not authorized to access admin data');
       }
 
-      // Fetch rental agreements
+      // Fetch rental agreements with all data
       const { data: agreementsData, error: agreementsError } = await supabase
         .from('rental_agreements')
         .select('*')
@@ -82,10 +96,17 @@ const AdminPanel = () => {
       console.log('Fetched agreements:', agreementsData);
       setAgreements(agreementsData || []);
 
-      // Fetch documents
+      // Fetch documents with rental agreement info
       const { data: documentsData, error: documentsError } = await supabase
         .from('rental_documents')
-        .select('*')
+        .select(`
+          *,
+          rental_agreements!inner(
+            property_address,
+            landlord_name,
+            tenant_name
+          )
+        `)
         .order('uploaded_at', { ascending: false });
 
       if (documentsError) {
@@ -323,62 +344,95 @@ const AdminPanel = () => {
                       <p>No rental agreements found</p>
                     </div>
                   ) : (
-                    agreements.map((agreement, index) => (
-                      <div 
-                        key={agreement.id} 
-                        className="p-4 border rounded-lg hover:shadow-md transition-all duration-300 hover-lift animate-slide-up"
-                        style={{animationDelay: `${index * 0.1}s`}}
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground mb-2">
-                              {agreement.property_address}
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                              <div>
-                                <p className="text-muted-foreground">Landlord</p>
-                                <p className="font-medium">{agreement.landlord_name}</p>
-                                <p className="text-xs text-muted-foreground">{agreement.landlord_email}</p>
-                              </div>
-                              <div>
-                                <p className="text-muted-foreground">Tenant</p>
-                                <p className="font-medium">{agreement.tenant_name}</p>
-                                <p className="text-xs text-muted-foreground">{agreement.tenant_email}</p>
-                              </div>
-                              <div>
-                                <p className="text-muted-foreground">Rent Amount</p>
-                                <p className="font-medium text-lg text-primary">
-                                  {formatCurrency(agreement.rent_amount)}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end space-y-2">
-                            <Badge 
-                              variant={agreement.status === 'pending' ? 'secondary' : 'default'}
-                              className="mb-2"
-                            >
-                              {agreement.status}
-                            </Badge>
-                            <div className="flex space-x-2">
-                              {agreement.status === 'pending' && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => updateAgreementStatus(agreement.id, 'completed')}
-                                  className="hover-lift"
-                                >
-                                  Mark Complete
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Created: {new Date(agreement.created_at).toLocaleDateString()} • 
-                          ID: {agreement.id.substring(0, 8)}...
-                        </div>
-                      </div>
-                    ))
+                     agreements.map((agreement, index) => (
+                       <div 
+                         key={agreement.id} 
+                         className="p-4 border rounded-lg hover:shadow-md transition-all duration-300 hover-lift animate-slide-up"
+                         style={{animationDelay: `${index * 0.1}s`}}
+                       >
+                         <div className="flex justify-between items-start mb-4">
+                           <div className="flex-1">
+                             <h3 className="font-semibold text-foreground mb-4 text-lg">
+                               {agreement.property_address}
+                             </h3>
+                             
+                             {/* Property Details */}
+                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+                               <div className="space-y-2">
+                                 <h4 className="font-medium text-primary">Property Information</h4>
+                                 <div className="text-sm space-y-1">
+                                   <p><span className="font-medium text-muted-foreground">Type:</span> {agreement.property_type || 'N/A'}</p>
+                                   <p><span className="font-medium text-muted-foreground">Address:</span> {agreement.property_address}</p>
+                                   <p><span className="font-medium text-muted-foreground">Rent:</span> <span className="text-primary font-bold">{formatCurrency(agreement.rent_amount)}</span></p>
+                                   <p><span className="font-medium text-muted-foreground">Security Deposit:</span> {agreement.security_deposit ? formatCurrency(agreement.security_deposit) : 'N/A'}</p>
+                                 </div>
+                               </div>
+                               
+                               <div className="space-y-2">
+                                 <h4 className="font-medium text-primary">Landlord Details</h4>
+                                 <div className="text-sm space-y-1">
+                                   <p><span className="font-medium text-muted-foreground">Name:</span> {agreement.landlord_name}</p>
+                                   <p><span className="font-medium text-muted-foreground">Email:</span> {agreement.landlord_email || 'N/A'}</p>
+                                   <p><span className="font-medium text-muted-foreground">Phone:</span> {agreement.landlord_phone || 'N/A'}</p>
+                                 </div>
+                               </div>
+                               
+                               <div className="space-y-2">
+                                 <h4 className="font-medium text-primary">Tenant Details</h4>
+                                 <div className="text-sm space-y-1">
+                                   <p><span className="font-medium text-muted-foreground">Name:</span> {agreement.tenant_name}</p>
+                                   <p><span className="font-medium text-muted-foreground">Email:</span> {agreement.tenant_email || 'N/A'}</p>
+                                   <p><span className="font-medium text-muted-foreground">Phone:</span> {agreement.tenant_phone || 'N/A'}</p>
+                                 </div>
+                               </div>
+                             </div>
+                             
+                             {/* Lease Details */}
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                               <div className="space-y-2">
+                                 <h4 className="font-medium text-primary">Lease Period</h4>
+                                 <div className="text-sm space-y-1">
+                                   <p><span className="font-medium text-muted-foreground">Start Date:</span> {agreement.lease_start_date ? new Date(agreement.lease_start_date).toLocaleDateString() : 'N/A'}</p>
+                                   <p><span className="font-medium text-muted-foreground">End Date:</span> {agreement.lease_end_date ? new Date(agreement.lease_end_date).toLocaleDateString() : 'N/A'}</p>
+                                 </div>
+                               </div>
+                               
+                               <div className="space-y-2">
+                                 <h4 className="font-medium text-primary">Agreement Terms</h4>
+                                 <div className="text-sm">
+                                   <p className="text-muted-foreground">{agreement.agreement_terms || 'No specific terms provided'}</p>
+                                 </div>
+                               </div>
+                             </div>
+                           </div>
+                           
+                           <div className="flex flex-col items-end space-y-2 ml-4">
+                             <Badge 
+                               variant={agreement.status === 'pending' ? 'secondary' : 'default'}
+                               className="mb-2"
+                             >
+                               {agreement.status}
+                             </Badge>
+                             <div className="flex space-x-2">
+                               {agreement.status === 'pending' && (
+                                 <Button
+                                   size="sm"
+                                   onClick={() => updateAgreementStatus(agreement.id, 'completed')}
+                                   className="hover-lift"
+                                 >
+                                   Mark Complete
+                                 </Button>
+                               )}
+                             </div>
+                           </div>
+                         </div>
+                         
+                         <div className="text-xs text-muted-foreground border-t pt-2">
+                           Created: {new Date(agreement.created_at).toLocaleDateString()} • 
+                           ID: {agreement.id.substring(0, 8)}...
+                         </div>
+                       </div>
+                     ))
                   )}
                 </div>
               </CardContent>
@@ -399,41 +453,98 @@ const AdminPanel = () => {
                       <p>No documents found</p>
                     </div>
                   ) : (
-                    documents.map((documentItem, index) => (
-                      <div 
-                        key={documentItem.id} 
-                        className="p-4 border rounded-lg hover:shadow-md transition-all duration-300 hover-lift animate-slide-up"
-                        style={{animationDelay: `${index * 0.1}s`}}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-start space-x-3">
-                            <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
-                            <div>
-                              <h4 className="font-medium text-foreground">{documentItem.file_name}</h4>
-                              <div className="text-sm text-muted-foreground space-y-1">
-                                <p>Type: {documentItem.document_type}</p>
-                                <p>Size: {formatFileSize(documentItem.file_size)}</p>
-                                <p>Uploaded: {new Date(documentItem.uploaded_at).toLocaleDateString()}</p>
-                                {documentItem.rental_agreement_id && (
-                                  <p>Agreement ID: {documentItem.rental_agreement_id.substring(0, 8)}...</p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => downloadDocument(documentItem)}
-                              className="hover-lift group"
-                            >
-                              <Download className="mr-2 h-4 w-4 group-hover:translate-y-[-2px] transition-transform" />
-                              Download
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))
+                     documents.map((documentItem, index) => (
+                       <div 
+                         key={documentItem.id} 
+                         className="p-6 border rounded-lg hover:shadow-lg transition-all duration-300 hover-lift animate-slide-up bg-white"
+                         style={{animationDelay: `${index * 0.1}s`}}
+                       >
+                         <div className="flex gap-6">
+                           {/* Image Preview Section */}
+                           <div className="flex-shrink-0">
+                             {documentItem.file_name.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                               <div className="w-32 h-24 bg-gray-100 rounded-lg overflow-hidden border">
+                                 <img 
+                                   src={documentItem.file_url} 
+                                   alt={documentItem.file_name}
+                                   className="w-full h-full object-cover"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                     target.nextElementSibling?.classList.remove('hidden');
+                                   }}
+                                 />
+                                 <div className="hidden w-full h-full flex items-center justify-center">
+                                   <ImageIcon className="h-8 w-8 text-gray-400" />
+                                 </div>
+                               </div>
+                             ) : (
+                               <div className="w-32 h-24 bg-gray-100 rounded-lg flex items-center justify-center border">
+                                 <FileImage className="h-8 w-8 text-gray-400" />
+                               </div>
+                             )}
+                           </div>
+                           
+                           {/* Document Information */}
+                           <div className="flex-1">
+                             <div className="flex justify-between items-start mb-4">
+                               <div>
+                                 <h4 className="font-semibold text-foreground text-lg mb-2">{documentItem.file_name}</h4>
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                   <div className="space-y-2">
+                                     <h5 className="font-medium text-primary">Document Details</h5>
+                                     <div className="text-sm text-muted-foreground space-y-1">
+                                       <p><span className="font-medium">Type:</span> {documentItem.document_type}</p>
+                                       <p><span className="font-medium">Size:</span> {formatFileSize(documentItem.file_size)}</p>
+                                       <p><span className="font-medium">Uploaded:</span> {new Date(documentItem.uploaded_at).toLocaleDateString()}</p>
+                                     </div>
+                                   </div>
+                                   
+                                   {documentItem.rental_agreements && (
+                                     <div className="space-y-2">
+                                       <h5 className="font-medium text-primary">Related Agreement</h5>
+                                       <div className="text-sm text-muted-foreground space-y-1">
+                                         <p><span className="font-medium">Property:</span> {documentItem.rental_agreements.property_address}</p>
+                                         <p><span className="font-medium">Landlord:</span> {documentItem.rental_agreements.landlord_name}</p>
+                                         <p><span className="font-medium">Tenant:</span> {documentItem.rental_agreements.tenant_name}</p>
+                                       </div>
+                                     </div>
+                                   )}
+                                   
+                                   {documentItem.rental_agreement_id && !documentItem.rental_agreements && (
+                                     <div className="space-y-2">
+                                       <h5 className="font-medium text-primary">Agreement ID</h5>
+                                       <p className="text-sm text-muted-foreground">{documentItem.rental_agreement_id.substring(0, 8)}...</p>
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                               
+                               <div className="flex space-x-2">
+                                 <Button
+                                   variant="outline"
+                                   size="sm"
+                                   onClick={() => window.open(documentItem.file_url, '_blank')}
+                                   className="hover-lift group"
+                                 >
+                                   <Eye className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+                                   View
+                                 </Button>
+                                 <Button
+                                   variant="default"
+                                   size="sm"
+                                   onClick={() => downloadDocument(documentItem)}
+                                   className="hover-lift group"
+                                 >
+                                   <Download className="mr-2 h-4 w-4 group-hover:translate-y-[-2px] transition-transform" />
+                                   Download
+                                 </Button>
+                               </div>
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+                     ))
                   )}
                 </div>
               </CardContent>

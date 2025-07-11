@@ -154,7 +154,7 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <div className="animate-fade-in hover-lift">
+            <div className="animate-fade-in hover-lift shadow-lg rounded-2xl bg-white p-2">
               <ServiceCard
                 icon={FileText}
                 title="Rental Agreement with Biometric + Police Intimation"
@@ -165,7 +165,7 @@ const Index = () => {
                 features={["Biometric verification", "Police intimation", "Legal compliance", "Digital signatures"]}
               />
             </div>
-            <div className="animate-fade-in hover-lift" style={{animationDelay: '0.2s'}}>
+            <div className="animate-fade-in hover-lift shadow-lg rounded-2xl bg-white p-2" style={{animationDelay: '0.2s'}}>
               <ServiceCard
                 icon={Fingerprint}
                 title="Rental Agreement with Biometric"
@@ -176,7 +176,7 @@ const Index = () => {
                 features={["Biometric authentication", "Identity verification", "Digital security", "Quick processing"]}
               />
             </div>
-            <div className="animate-fade-in hover-lift" style={{animationDelay: '0.4s'}}>
+            <div className="animate-fade-in hover-lift shadow-lg rounded-2xl bg-white p-2" style={{animationDelay: '0.4s'}}>
               <ServiceCard
                 icon={Stamp}
                 title="Rental Agreement with E-Stamp & Notary"
@@ -204,7 +204,7 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center animate-slide-up">
+            <div className="text-center animate-slide-up bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover-lift">
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-white font-bold text-xl">1</span>
               </div>
@@ -213,7 +213,7 @@ const Index = () => {
                 Enter property and party information through our guided form
               </p>
             </div>
-            <div className="text-center animate-slide-up" style={{animationDelay: '0.2s'}}>
+            <div className="text-center animate-slide-up bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover-lift" style={{animationDelay: '0.2s'}}>
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-white font-bold text-xl">2</span>
               </div>
@@ -222,7 +222,7 @@ const Index = () => {
                 Review your agreement and make any necessary customizations
               </p>
             </div>
-            <div className="text-center animate-slide-up" style={{animationDelay: '0.4s'}}>
+            <div className="text-center animate-slide-up bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover-lift" style={{animationDelay: '0.4s'}}>
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-white font-bold text-xl">3</span>
               </div>
