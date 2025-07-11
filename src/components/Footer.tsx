@@ -10,10 +10,10 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">NB</span>
+              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                <span className="text-white font-bold text-sm">IR</span>
               </div>
-              <span className="text-xl font-bold">NoBroker</span>
+              <span className="text-xl font-bold">IndiRent</span>
             </div>
             <p className="text-gray-400 text-sm mb-4">
               India's largest platform for rental agreements and property services. 
@@ -56,15 +56,15 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-center">
-                <Phone className="h-4 w-4 mr-2 text-red-600" />
+                <Phone className="h-4 w-4 mr-2 text-blue-600" />
                 <span className="text-gray-400">+91-9999999999</span>
               </div>
               <div className="flex items-center">
-                <Mail className="h-4 w-4 mr-2 text-red-600" />
-                <span className="text-gray-400">support@nobroker.in</span>
+                <Mail className="h-4 w-4 mr-2 text-blue-600" />
+                <span className="text-gray-400">support@indirent.in</span>
               </div>
               <div className="flex items-start">
-                <MapPin className="h-4 w-4 mr-2 text-red-600 mt-1" />
+                <MapPin className="h-4 w-4 mr-2 text-blue-600 mt-1" />
                 <span className="text-gray-400">
                   123 Business Park,<br />
                   Bangalore, Karnataka<br />
@@ -78,7 +78,7 @@ const Footer = () => {
         <Separator className="my-8 bg-gray-800" />
         
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-          <p>&copy; 2024 NoBroker Technologies. All rights reserved.</p>
+          <p>&copy; 2024 IndiRent Technologies. All rights reserved.</p>
           <p>Made with ❤️ in India</p>
         </div>
       </div>

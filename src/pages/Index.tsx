@@ -8,6 +8,10 @@ import DemoVideoModal from "@/components/DemoVideoModal";
 import ServiceCard from "@/components/ServiceCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import Footer from "@/components/Footer";
+import documentVerificationImg from "@/assets/document-verification.jpg";
+import hourResolutionImg from "@/assets/48-hour-resolution.jpg";
+import supportTeamImg from "@/assets/support-team.jpg";
+import indirentLogoImg from "@/assets/indirent-logo.jpg";
 
 const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
@@ -79,18 +83,21 @@ const Index = () => {
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
+        <div className="absolute top-10 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style={{animationDelay: '2s'}}></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style={{animationDelay: '4s'}}></div>
         <div className="container mx-auto text-center relative z-10">
           <div className="max-w-4xl mx-auto animate-fade-in">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight magnetic-hover">
               Create Legal{' '}
-              <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent animate-pulse-glow">
                 Rental
               </span>
               <br />
-              <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+              <span className="text-blue-600 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent animate-pulse-glow">
                 Agreements
               </span>{' '}
-              <span className="text-blue-600">with IndiRent</span>
+              <span className="text-blue-600 animate-bounce-in">with IndiRent</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Professional, legally compliant rental agreements crafted in minutes. 
@@ -100,17 +107,17 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 onClick={handleGetStarted}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 animate-pulse-glow magnetic-hover"
               >
                 Create Agreement Now
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5 animate-bounce-in" />
               </Button>
               <Button 
                 onClick={() => setShowDemo(true)}
                 variant="outline" 
-                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 magnetic-hover"
               >
-                <Play className="mr-2 h-5 w-5" />
+                <Play className="mr-2 h-5 w-5 animate-rotate-in" />
                 How it Works
               </Button>
             </div>
@@ -147,33 +154,39 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <ServiceCard
-              icon={FileText}
-              title="Rental Agreement with Biometric + Police Intimation"
-              description="Complete rental agreement with biometric verification and police intimation for maximum security."
-              price="Free"
-              originalPrice="₹200"
-              badge="Upto ₹100 off"
-              features={["Biometric verification", "Police intimation", "Legal compliance", "Digital signatures"]}
-            />
-            <ServiceCard
-              icon={Fingerprint}
-              title="Rental Agreement with Biometric"
-              description="Secure rental agreement with biometric authentication for verified identity confirmation."
-              price="Free"
-              originalPrice="₹150"
-              badge="Upto ₹100 off"
-              features={["Biometric authentication", "Identity verification", "Digital security", "Quick processing"]}
-            />
-            <ServiceCard
-              icon={Stamp}
-              title="Rental Agreement with E-Stamp & Notary"
-              description="Traditional rental agreement with e-stamp paper and notary verification for legal validity."
-              price="Free"
-              originalPrice="₹300"
-              badge="Upto ₹100 off"
-              features={["E-stamp paper", "Notary verification", "Legal validity", "Government approved"]}
-            />
+            <div className="animate-fade-in hover-lift">
+              <ServiceCard
+                icon={FileText}
+                title="Rental Agreement with Biometric + Police Intimation"
+                description="Complete rental agreement with biometric verification and police intimation for maximum security."
+                price=""
+                originalPrice=""
+                badge=""
+                features={["Biometric verification", "Police intimation", "Legal compliance", "Digital signatures"]}
+              />
+            </div>
+            <div className="animate-fade-in hover-lift" style={{animationDelay: '0.2s'}}>
+              <ServiceCard
+                icon={Fingerprint}
+                title="Rental Agreement with Biometric"
+                description="Secure rental agreement with biometric authentication for verified identity confirmation."
+                price=""
+                originalPrice=""
+                badge=""
+                features={["Biometric authentication", "Identity verification", "Digital security", "Quick processing"]}
+              />
+            </div>
+            <div className="animate-fade-in hover-lift" style={{animationDelay: '0.4s'}}>
+              <ServiceCard
+                icon={Stamp}
+                title="Rental Agreement with E-Stamp & Notary"
+                description="Traditional rental agreement with e-stamp paper and notary verification for legal validity."
+                price=""
+                originalPrice=""
+                badge=""
+                features={["E-stamp paper", "Notary verification", "Legal validity", "Government approved"]}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -236,11 +249,11 @@ const Index = () => {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Document Verification */}
-            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300 animate-fade-in">
+            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-8 text-center card-hover animate-fade-in">
               <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 relative overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" 
-                  alt="Document verification representative"
+                  src={documentVerificationImg} 
+                  alt="Document verification process"
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
@@ -264,11 +277,11 @@ const Index = () => {
             </div>
 
             {/* 48-hour Resolution */}
-            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300 animate-fade-in" style={{animationDelay: '0.2s'}}>
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 text-center card-hover animate-fade-in" style={{animationDelay: '0.2s'}}>
               <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6 relative overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" 
-                  alt="Customer support representative"
+                  src={hourResolutionImg} 
+                  alt="Fast 48-hour resolution service"
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
@@ -292,11 +305,11 @@ const Index = () => {
             </div>
 
             {/* Dedicated Support */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300 animate-fade-in" style={{animationDelay: '0.4s'}}>
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 text-center card-hover animate-fade-in" style={{animationDelay: '0.4s'}}>
               <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 relative overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" 
-                  alt="Legal expert"
+                  src={supportTeamImg} 
+                  alt="Dedicated support team"
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
@@ -343,10 +356,11 @@ const Index = () => {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <TestimonialCard
-                key={index}
-                {...testimonial}
-              />
+              <div key={index} className="animate-scale-in" style={{animationDelay: `${index * 0.2}s`}}>
+                <TestimonialCard
+                  {...testimonial}
+                />
+              </div>
             ))}
           </div>
         </div>
@@ -420,8 +434,8 @@ const Index = () => {
             
             <div className="grid md:grid-cols-3 gap-8 mb-8">
               {/* Extra Visit for Biometric */}
-              <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 text-center card-hover animate-slide-up">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-float">
                   <MapPin className="h-8 w-8 text-red-600" />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">
@@ -433,8 +447,8 @@ const Index = () => {
               </div>
 
               {/* Tech Assistance */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 text-center card-hover animate-slide-up" style={{animationDelay: '0.2s'}}>
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-float" style={{animationDelay: '1s'}}>
                   <Headphones className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">
@@ -446,8 +460,8 @@ const Index = () => {
               </div>
 
               {/* Tenant Verification */}
-              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 text-center card-hover animate-slide-up" style={{animationDelay: '0.4s'}}>
+                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-float" style={{animationDelay: '2s'}}>
                   <BadgeCheck className="h-8 w-8 text-yellow-600" />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">
@@ -461,8 +475,8 @@ const Index = () => {
 
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {/* Hardcopy Delivery */}
-              <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-8 text-center card-hover animate-scale-in">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-float">
                   <Package className="h-8 w-8 text-red-600" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-gray-800">
@@ -474,8 +488,8 @@ const Index = () => {
               </div>
 
               {/* Power Of Attorney */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 text-center hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 text-center card-hover animate-scale-in" style={{animationDelay: '0.2s'}}>
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-float" style={{animationDelay: '1s'}}>
                   <FileUser className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-gray-800">

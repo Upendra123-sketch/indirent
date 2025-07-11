@@ -12,6 +12,7 @@ interface AuthContextType {
   adminSignIn: (username: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,12 +40,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Check if user is admin - use setTimeout to avoid blocking the auth state change
+          // Check if user is admin with additional security checks
           setTimeout(async () => {
             try {
+              // Verify session is still valid before admin check
+              const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+              if (authError || !currentUser || currentUser.id !== session.user.id) {
+                setIsAdmin(false);
+                return;
+              }
+
               const { data, error } = await supabase
                 .from('admin_users')
-                .select('id')
+                .select('id, email')
                 .eq('email', session.user.email)
                 .maybeSingle();
               
@@ -187,6 +195,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('Signing out user...');
       
+      // Clear admin state immediately for security
+      setIsAdmin(false);
+      
       // Only try to sign out from Supabase if it's not an admin session
       if (user?.id?.startsWith('admin-user-')) {
         console.log('Admin logout - clearing local state only');
@@ -214,15 +225,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshSession = async () => {
+    const { data: { session }, error } = await supabase.auth.refreshSession();
+    if (error) {
+      console.error('Error refreshing session:', error);
+      await signOut(); // Sign out if refresh fails
+    }
+  };
+
   const value = {
     user,
     session,
     isAdmin,
     loading,
     signIn,
-    adminSignIn,
-    signUp,
-    signOut,
+      adminSignIn,
+      signUp,
+      signOut,
+      refreshSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
