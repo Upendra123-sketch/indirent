@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (error) {
                 console.error('Error checking admin status:', error);
                 // For admin account, default to admin status
-                setIsAdmin(session.user.email === 'admin@indirent.com');
+                setIsAdmin(session.user.email === 'indirent05@gmail.com');
               } else {
                 setIsAdmin(!!data);
                 console.log('Admin status:', !!data);
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } catch (error) {
               console.error('Error in admin check:', error);
               // For admin account, default to admin status
-              setIsAdmin(session.user.email === 'admin@indirent.com');
+              setIsAdmin(session.user.email === 'indirent05@gmail.com');
             }
           }, 100);
         } else {
