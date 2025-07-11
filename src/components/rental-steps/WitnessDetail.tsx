@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, ArrowLeft, ArrowRight } from 'lucide-react';
 import { RentalFormData } from "@/types/rental";
-import DocumentUploadStep from "@/components/DocumentUploadStep";
 
 interface WitnessDetailProps {
   formData: RentalFormData;
@@ -16,21 +15,6 @@ interface WitnessDetailProps {
 }
 
 const WitnessDetail = ({ formData, onInputChange, onNext, onBack }: WitnessDetailProps) => {
-  const [showDocumentUpload, setShowDocumentUpload] = React.useState(false);
-
-  const handleContinue = () => {
-    setShowDocumentUpload(true);
-  };
-
-  const handleDocumentUploadNext = () => {
-    setShowDocumentUpload(false);
-    onNext();
-  };
-
-  const handleDocumentUploadBack = () => {
-    setShowDocumentUpload(false);
-  };
-
   const validateAadhar = (value: string) => {
     // Remove any non-digit characters
     const digits = value.replace(/\D/g, '');
@@ -47,16 +31,6 @@ const WitnessDetail = ({ formData, onInputChange, onNext, onBack }: WitnessDetai
     const validatedValue = validateAadhar(e.target.value);
     onInputChange('witness2Aadhar', validatedValue);
   };
-
-  if (showDocumentUpload) {
-    return (
-      <DocumentUploadStep
-        onNext={handleDocumentUploadNext}
-        onBack={handleDocumentUploadBack}
-        rentalAgreementId={formData.agreementId}
-      />
-    );
-  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -216,8 +190,8 @@ const WitnessDetail = ({ formData, onInputChange, onNext, onBack }: WitnessDetai
           <ArrowLeft className="mr-2 h-4 w-4 group-hover:translate-x-[-4px] transition-transform" />
           Back
         </Button>
-        <Button onClick={handleContinue} className="hover-lift group">
-          Continue to Upload Documents
+        <Button onClick={onNext} className="hover-lift group">
+          Continue to Summary
           <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
         </Button>
       </div>
