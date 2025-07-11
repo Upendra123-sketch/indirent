@@ -129,6 +129,7 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
     }
 
     console.log('Starting upload for user:', user.id);
+    console.log('User object:', user);
     setUploading(true);
     
     try {
@@ -155,7 +156,12 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
 
         console.log('File uploaded to storage, saving to database...');
 
-        // Save to database - ensure we have the correct user_id
+        // Debug: Log the current session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        console.log('Current session:', sessionData?.session?.user?.id);
+        console.log('Session error:', sessionError);
+
+        // Create the document data with explicit typing
         const documentData = {
           rental_agreement_id: rentalAgreementId || null,
           user_id: user.id,
@@ -165,18 +171,28 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
           file_url: publicUrl,
         };
 
-        console.log('Saving document data:', documentData);
+        console.log('About to insert document data:', documentData);
+        console.log('Table name: rental_documents');
 
-        const { error: dbError } = await supabase
+        // Try the insert with additional debugging
+        const { data: insertData, error: dbError } = await supabase
           .from('rental_documents')
-          .insert(documentData);
+          .insert(documentData)
+          .select();
+
+        console.log('Insert result:', { data: insertData, error: dbError });
 
         if (dbError) {
-          console.error('Database insert error:', dbError);
+          console.error('Database insert error details:', {
+            message: dbError.message,
+            code: dbError.code,
+            details: dbError.details,
+            hint: dbError.hint
+          });
           throw dbError;
         }
 
-        console.log('Document saved successfully');
+        console.log('Document saved successfully:', insertData);
         return fileName;
       });
 
