@@ -51,7 +51,10 @@ const AdminPanel = () => {
 
   useEffect(() => {
     if (!user || !isAdmin) {
-      navigate('/');
+      // Add a small delay to show loading state, then redirect
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
       return;
     }
     
