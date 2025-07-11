@@ -139,20 +139,51 @@ const AdminPanel = () => {
 
   const downloadDocument = async (documentItem: RentalDocument) => {
     try {
+      // Extract the file path from the URL or use the stored path
+      let filePath = documentItem.file_url;
+      
+      // If the file_url is a full URL, extract just the file path
+      if (filePath.startsWith('http')) {
+        const urlParts = filePath.split('/');
+        const bucketIndex = urlParts.findIndex(part => part === 'rental-documents');
+        if (bucketIndex !== -1 && urlParts[bucketIndex + 1]) {
+          filePath = urlParts.slice(bucketIndex + 1).join('/');
+        }
+      }
+
+      console.log('Downloading file from path:', filePath);
+
+      // Download from Supabase storage
       const { data, error } = await supabase.storage
         .from('rental-documents')
-        .download(documentItem.file_url.split('/').pop() || '');
+        .download(filePath);
 
-      if (error) throw error;
-
-      const url = URL.createObjectURL(data);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = documentItem.file_name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      if (error) {
+        console.error('Storage download error:', error);
+        // Fallback: try to fetch directly from URL
+        const response = await fetch(documentItem.file_url);
+        if (!response.ok) throw new Error('Failed to fetch file');
+        const blob = await response.blob();
+        
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = documentItem.file_name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        // Success: create download link
+        const url = URL.createObjectURL(data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = documentItem.file_name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
 
       toast({
         title: "Success",
@@ -161,8 +192,8 @@ const AdminPanel = () => {
     } catch (error) {
       console.error('Download error:', error);
       toast({
-        title: "Error",
-        description: "Failed to download document",
+        title: "Error", 
+        description: "Failed to download document. Please try again.",
         variant: "destructive",
       });
     }

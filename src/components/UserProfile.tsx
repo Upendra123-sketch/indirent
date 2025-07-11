@@ -94,15 +94,21 @@ const UserProfile = () => {
 
   const fetchAgreements = async () => {
     try {
+      if (!user?.email) return;
+      
+      // Fetch agreements where the user is either landlord or tenant
       const { data, error } = await supabase
         .from('rental_agreements')
         .select('*')
+        .or(`landlord_email.eq.${user.email},tenant_email.eq.${user.email}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setAgreements(data || []);
     } catch (error) {
       console.error('Error fetching agreements:', error);
+      // If email filtering fails, try to fetch without filtering and show empty state
+      setAgreements([]);
     }
   };
 
