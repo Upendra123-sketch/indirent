@@ -123,40 +123,60 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
   };
 
   const uploadFiles = async () => {
-    if (!user || uploadedFiles.length === 0) return;
+    if (!user || uploadedFiles.length === 0) {
+      console.log('Upload failed: missing user or files', { user: !!user, fileCount: uploadedFiles.length });
+      return;
+    }
 
+    console.log('Starting upload for user:', user.id);
     setUploading(true);
+    
     try {
       const uploadPromises = uploadedFiles.map(async (file) => {
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        console.log('Uploading file to storage:', fileName);
         
         // Upload to Supabase Storage
         const { error: uploadError } = await supabase.storage
           .from('rental-documents')
           .upload(fileName, file);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error('Storage upload error:', uploadError);
+          throw uploadError;
+        }
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
           .from('rental-documents')
           .getPublicUrl(fileName);
 
-        // Save to database
+        console.log('File uploaded to storage, saving to database...');
+
+        // Save to database - ensure we have the correct user_id
+        const documentData = {
+          rental_agreement_id: rentalAgreementId || null,
+          user_id: user.id,
+          document_type: selectedDocumentType,
+          file_name: file.name,
+          file_size: file.size,
+          file_url: publicUrl,
+        };
+
+        console.log('Saving document data:', documentData);
+
         const { error: dbError } = await supabase
           .from('rental_documents')
-          .insert({
-            rental_agreement_id: rentalAgreementId || null,
-            user_id: user.id,
-            document_type: selectedDocumentType,
-            file_name: file.name,
-            file_size: file.size,
-            file_url: publicUrl,
-          });
+          .insert(documentData);
 
-        if (dbError) throw dbError;
+        if (dbError) {
+          console.error('Database insert error:', dbError);
+          throw dbError;
+        }
 
+        console.log('Document saved successfully');
         return fileName;
       });
 
@@ -172,8 +192,8 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
     } catch (error) {
       console.error('Upload error:', error);
       toast({
-        title: "Upload Failed",
-        description: "Failed to upload documents. Please try again.",
+        title: "Upload Failed", 
+        description: error instanceof Error ? error.message : "Failed to upload documents. Please try again.",
         variant: "destructive",
       });
     } finally {
