@@ -59,10 +59,11 @@ const Index = () => {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">IR</span>
-              </div>
-              <span className="text-xl font-bold text-gray-800">IndiRent</span>
+              <img 
+                src="/lovable-uploads/349dcba6-1db7-46e0-aef0-f5835990f926.png" 
+                alt="IndiRent Logo" 
+                className="h-10 w-auto"
+              />
             </div>
             <nav className="flex items-center space-x-4">
               {user ? (
