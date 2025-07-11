@@ -2,9 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RentalFormData } from "@/types/rental";
 
 interface WitnessDetailProps {
-  formData: any;
+  formData: RentalFormData;
   onInputChange: (field: string, value: string) => void;
   onNext: () => void;
   onBack: () => void;

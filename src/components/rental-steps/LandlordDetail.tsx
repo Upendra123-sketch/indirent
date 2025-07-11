@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
+import { RentalFormData } from "@/types/rental";
 
 interface LandlordDetailProps {
-  formData: any;
+  formData: RentalFormData;
   onInputChange: (field: string, value: string) => void;
   onNext: () => void;
   onBack: () => void;

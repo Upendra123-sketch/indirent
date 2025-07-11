@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
@@ -14,13 +13,14 @@ import LandlordDetail from "@/components/rental-steps/LandlordDetail";
 import TenantDetail from "@/components/rental-steps/TenantDetail";
 import WitnessDetail from "@/components/rental-steps/WitnessDetail";
 import Summary from "@/components/rental-steps/Summary";
+import { RentalFormData } from "@/types/rental";
 
 const RentalAgreement = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<RentalFormData>({});
   const [saving, setSaving] = useState(false);
 
   const stepNames = [
@@ -66,6 +66,16 @@ const RentalAgreement = () => {
     setSaving(true);
     
     try {
+      // Create property address from form data
+      const propertyAddress = [
+        formData.houseNumber,
+        formData.buildingName,
+        formData.locality,
+        formData.roadStreet,
+        formData.societyName,
+        formData.pincode
+      ].filter(Boolean).join(', ');
+
       const agreementData = {
         landlord_name: formData.landlordName || '',
         landlord_email: formData.landlordEmail || '',
@@ -73,13 +83,13 @@ const RentalAgreement = () => {
         tenant_name: formData.tenantName || '',
         tenant_email: formData.tenantEmail || '',
         tenant_phone: formData.tenantPhone || '',
-        property_address: formData.propertyAddress || '',
+        property_address: propertyAddress,
         property_type: formData.propertyType || '',
-        rent_amount: parseFloat(formData.rentAmount) || 0,
-        security_deposit: formData.securityDeposit ? parseFloat(formData.securityDeposit) : null,
-        lease_start_date: formData.leaseStartDate || null,
-        lease_end_date: formData.leaseEndDate || null,
-        agreement_terms: formData.agreementTerms || '',
+        rent_amount: parseFloat(formData.monthlyRent || '0') || 0,
+        security_deposit: formData.refundableDeposit ? parseFloat(formData.refundableDeposit) : null,
+        lease_start_date: formData.agreementStartDate || null,
+        lease_end_date: null, // Will be calculated based on duration
+        agreement_terms: `Duration: ${formData.agreementDuration}, Lock-in: ${formData.lockinPeriod} months`,
         status: 'pending'
       };
 
@@ -96,8 +106,15 @@ const RentalAgreement = () => {
         description: "Your rental agreement has been saved successfully.",
       });
 
-      // Store the agreement ID for reference
-      setFormData(prev => ({ ...prev, agreementId: data.id }));
+      // Store the agreement ID and update computed fields for reference
+      setFormData(prev => ({ 
+        ...prev, 
+        agreementId: data.id,
+        propertyAddress,
+        rentAmount: formData.monthlyRent,
+        securityDeposit: formData.refundableDeposit,
+        leaseStartDate: formData.agreementStartDate
+      }));
       
     } catch (error) {
       console.error('Error saving rental agreement:', error);
@@ -155,7 +172,6 @@ const RentalAgreement = () => {
             onInputChange={handleInputChange}
             onNext={handleNext}
             onBack={handleBack}
-            saving={saving}
           />
         );
       case 6:

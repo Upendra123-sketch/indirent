@@ -3,16 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ChevronRight, ArrowLeft, CheckCircle } from "lucide-react";
+import { RentalFormData } from "@/types/rental";
 
 interface SummaryProps {
-  formData: any;
+  formData: RentalFormData;
   onBack: () => void;
 }
 
 const Summary = ({ formData, onBack }: SummaryProps) => {
   const completionPercentage = 100; // Agreement is completed when reaching this step
-  const rentAmount = parseFloat(formData.rentAmount) || 0;
-  const securityDeposit = parseFloat(formData.securityDeposit) || 0;
+  const rentAmount = parseFloat(formData.rentAmount || formData.monthlyRent || '0') || 0;
+  const securityDeposit = parseFloat(formData.securityDeposit || formData.refundableDeposit || '0') || 0;
   const totalAmount = rentAmount + securityDeposit;
 
   return (
