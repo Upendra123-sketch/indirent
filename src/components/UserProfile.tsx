@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -120,10 +121,11 @@ const UserProfile = () => {
     } catch (error) {
       console.error('Error signing out:', error);
       toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
+        title: "Signed out",
+        description: "You have been signed out.",
       });
+      // Navigate anyway since we cleared local state
+      navigate('/');
     }
   };
 
