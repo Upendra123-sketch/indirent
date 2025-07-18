@@ -1,4 +1,3 @@
-
 # IndiRent - Rental Agreement & Stamp Duty Calculator
 
 IndiRent is a comprehensive platform for creating legal rental agreements and calculating stamp duty for property registration in India.
