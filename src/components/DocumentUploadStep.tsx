@@ -199,8 +199,17 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2">Upload Documents</h2>
-        <p className="text-muted-foreground">Upload required documents (PNG/JPG only, minimum 10KB)</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Upload Documents (Optional)</h2>
+        <p className="text-muted-foreground">Upload supporting documents or skip this step to proceed to summary</p>
+      </div>
+
+      {/* Info Banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start space-x-3">
+        <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <div className="text-sm text-blue-800">
+          <p className="font-medium mb-1">Document Upload (Optional)</p>
+          <p>You can upload documents now or skip this step and continue to the summary. Documents can be uploaded later from your profile.</p>
+        </div>
       </div>
 
       {/* Document Type Selection */}
@@ -330,13 +339,24 @@ const DocumentUploadStep = ({ onNext, onBack, rentalAgreementId }: DocumentUploa
         <Button variant="outline" onClick={onBack} className="hover-lift">
           Back
         </Button>
-        <Button 
-          onClick={uploadFiles} 
-          disabled={uploadedFiles.length === 0 || !selectedDocumentType || uploading}
-          className="hover-lift"
-        >
-          {uploading ? 'Uploading...' : `Upload ${uploadedFiles.length} File(s) & Continue`}
-        </Button>
+        <div className="flex gap-3">
+          {uploadedFiles.length > 0 && selectedDocumentType && (
+            <Button 
+              onClick={uploadFiles} 
+              disabled={uploading}
+              variant="outline"
+              className="hover-lift"
+            >
+              {uploading ? 'Uploading...' : `Upload ${uploadedFiles.length} File(s)`}
+            </Button>
+          )}
+          <Button 
+            onClick={onNext} 
+            className="hover-lift bg-blue-600 hover:bg-blue-700"
+          >
+            Continue to Summary
+          </Button>
+        </div>
       </div>
     </div>
   );

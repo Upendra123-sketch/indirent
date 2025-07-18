@@ -1,4 +1,4 @@
-
+import React from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -10,9 +10,9 @@ interface StepIndicatorProps {
 
 const StepIndicator = ({ currentStep, totalSteps, stepNames }: StepIndicatorProps) => {
   return (
-    <div className="bg-indigo-900 text-white py-4">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
+    <div className="bg-white border-b">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between">
           {stepNames.map((stepName, index) => {
             const stepNumber = index + 1;
             const isActive = stepNumber === currentStep;
@@ -20,30 +20,30 @@ const StepIndicator = ({ currentStep, totalSteps, stepNames }: StepIndicatorProp
             const isLast = index === stepNames.length - 1;
 
             return (
-              <div key={stepName} className="flex items-center">
-                <div className="flex flex-col items-center">
+              <React.Fragment key={stepName}>
+                <div className="flex items-center cursor-pointer">
                   <div
                     className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border-2",
+                      "w-8 h-8 rounded-full flex items-center justify-center border-2 font-medium transition-colors",
                       {
-                        "bg-white text-indigo-900 border-white": isActive,
-                        "bg-green-600 border-green-600": isCompleted,
-                        "border-gray-400 text-gray-400": !isActive && !isCompleted,
+                        "bg-blue-600 text-white border-blue-600": isCompleted,
+                        "bg-white text-blue-600 border-blue-600": isActive,
+                        "border-gray-300 text-gray-400": !isActive && !isCompleted,
                       }
                     )}
                   >
                     {isCompleted ? (
-                      <Check className="h-4 w-4 text-white" />
+                      <Check className="w-4 h-4" />
                     ) : (
-                      stepNumber
+                      <span className="text-sm">{stepNumber}</span>
                     )}
                   </div>
                   <span
                     className={cn(
-                      "text-xs mt-1 text-center max-w-20",
+                      "ml-3 text-sm font-medium hidden md:block transition-colors",
                       {
-                        "text-white font-medium": isActive,
-                        "text-gray-300": !isActive,
+                        "text-blue-600": isActive || isCompleted,
+                        "text-gray-400": !isActive && !isCompleted,
                       }
                     )}
                   >
@@ -53,15 +53,15 @@ const StepIndicator = ({ currentStep, totalSteps, stepNames }: StepIndicatorProp
                 {!isLast && (
                   <div
                     className={cn(
-                      "w-16 h-0.5 mx-2 mt-[-20px]",
+                      "flex-1 h-0.5 mx-4 transition-colors",
                       {
-                        "bg-green-600": isCompleted,
-                        "bg-gray-400": !isCompleted,
+                        "bg-blue-600": isCompleted,
+                        "bg-gray-200": !isCompleted,
                       }
                     )}
                   />
                 )}
-              </div>
+              </React.Fragment>
             );
           })}
         </div>

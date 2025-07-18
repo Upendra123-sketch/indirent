@@ -14,7 +14,7 @@ import {
   TrendingUp,
   ArrowLeft,
   Image as ImageIcon,
-  FileImage
+  File
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -114,8 +114,34 @@ const AdminPanel = () => {
         throw documentsError;
       }
       
-      console.log('Fetched documents:', documentsData);
-      setDocuments(documentsData || []);
+      console.log('Fetched documents from database:', documentsData);
+      
+      // Also try to get documents from localStorage emergency storage
+      let localDocs = [];
+      try {
+        const emergencyDocs = JSON.parse(localStorage.getItem('emergency_documents') || '[]');
+        console.log('Found emergency documents in localStorage:', emergencyDocs);
+        
+        // Convert localStorage docs to match database structure
+        localDocs = emergencyDocs.map((doc: any) => ({
+          id: doc.id,
+          document_type: doc.document_type,
+          file_name: doc.file_name,
+          file_size: doc.file_size,
+          file_url: doc.file_url,
+          uploaded_at: doc.uploaded_at,
+          rental_agreement_id: doc.rental_agreement_id,
+          source: 'localStorage' // Mark as localStorage source
+        }));
+      } catch (localError) {
+        console.warn('Could not read localStorage documents:', localError);
+      }
+      
+      // Combine database and localStorage documents
+      const allDocuments = [...(documentsData || []), ...localDocs];
+      console.log('Total documents (DB + localStorage):', allDocuments.length);
+      
+      setDocuments(allDocuments);
 
     } catch (error: any) {
       console.error('Error fetching data:', error);
@@ -139,7 +165,31 @@ const AdminPanel = () => {
 
   const downloadDocument = async (documentItem: RentalDocument) => {
     try {
-      // Extract the file path from the URL or use the stored path
+      // Check if this is a base64 data URL (from emergency storage)
+      if (documentItem.file_url.startsWith('data:')) {
+        console.log('Downloading base64 document');
+        
+        // Create blob from base64 data
+        const response = await fetch(documentItem.file_url);
+        const blob = await response.blob();
+        
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = documentItem.file_name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: "Success",
+          description: "Document downloaded successfully",
+        });
+        return;
+      }
+
+      // Handle regular Supabase storage files
       let filePath = documentItem.file_url;
       
       // If the file_url is a full URL, extract just the file path
@@ -201,7 +251,45 @@ const AdminPanel = () => {
 
   const viewDocument = async (documentItem: RentalDocument) => {
     try {
-      // Extract the file path from the URL
+      console.log('Attempting to view document:', {
+        fileName: documentItem.file_name,
+        fileUrl: documentItem.file_url.substring(0, 100) + '...',
+        isBase64: documentItem.file_url.startsWith('data:'),
+        documentType: documentItem.document_type
+      });
+
+      // Check if this is a base64 data URL (from emergency storage)
+      if (documentItem.file_url.startsWith('data:')) {
+        console.log('Opening base64 document in new window');
+        
+        // For images, create a more user-friendly view
+        if (documentItem.file_name.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+          const newWindow = window.open('', '_blank');
+          if (newWindow) {
+            newWindow.document.write(`
+              <html>
+                <head>
+                  <title>${documentItem.file_name}</title>
+                  <style>
+                    body { margin: 0; padding: 20px; background: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                    img { max-width: 100%; max-height: 100vh; object-fit: contain; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                  </style>
+                </head>
+                <body>
+                  <img src="${documentItem.file_url}" alt="${documentItem.file_name}" />
+                </body>
+              </html>
+            `);
+            newWindow.document.close();
+          }
+        } else {
+          // For non-images, open directly
+          window.open(documentItem.file_url, '_blank');
+        }
+        return;
+      }
+
+      // Handle regular Supabase storage files
       let filePath = documentItem.file_url;
       
       if (filePath.startsWith('http')) {
@@ -212,12 +300,12 @@ const AdminPanel = () => {
         }
       }
 
-      console.log('Viewing file from path:', filePath);
+      console.log('Viewing file from storage path:', filePath);
 
-      // Get a signed URL for viewing (valid for 60 seconds)
+      // Get a signed URL for viewing (valid for 5 minutes)
       const { data, error } = await supabase.storage
         .from('rental-documents')
-        .createSignedUrl(filePath, 60);
+        .createSignedUrl(filePath, 300);
 
       if (error) {
         console.error('Signed URL error:', error);
@@ -227,6 +315,7 @@ const AdminPanel = () => {
           .getPublicUrl(filePath);
         
         if (publicData.publicUrl) {
+          console.log('Using public URL as fallback');
           window.open(publicData.publicUrl, '_blank');
         } else {
           throw new Error('Could not generate view URL');
@@ -235,7 +324,10 @@ const AdminPanel = () => {
       }
 
       if (data.signedUrl) {
+        console.log('Opening signed URL');
         window.open(data.signedUrl, '_blank');
+      } else {
+        throw new Error('No signed URL returned');
       }
     } catch (error) {
       console.error('View error:', error);
@@ -331,7 +423,7 @@ const AdminPanel = () => {
               </Button>
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">A</span>
+                  <span className="text-primary-foreground font-bold text-sm">IR</span>
                 </div>
                 <span className="text-xl font-bold text-gray-800">Admin Panel</span>
               </div>
@@ -559,7 +651,7 @@ const AdminPanel = () => {
                                </div>
                              ) : (
                                <div className="w-32 h-24 bg-gray-100 rounded-lg flex items-center justify-center border">
-                                 <FileImage className="h-8 w-8 text-gray-400" />
+                                 <File className="h-8 w-8 text-gray-400" />
                                </div>
                              )}
                            </div>

@@ -13,8 +13,9 @@ import PropertyDetail from "@/components/rental-steps/PropertyDetail";
 import LandlordDetail from "@/components/rental-steps/LandlordDetail";
 import TenantDetail from "@/components/rental-steps/TenantDetail";
 import WitnessDetail from "@/components/rental-steps/WitnessDetail";
-import DocumentUploadStep from "@/components/DocumentUploadStep";
 import Summary from "@/components/rental-steps/Summary";
+import TipsPanel from "@/components/TipsPanel";
+import PaymentSummary from "@/components/PaymentSummary";
 import { RentalFormData } from "@/types/rental";
 import AuthModal from "@/components/AuthModal";
 
@@ -35,7 +36,6 @@ const RentalAgreement = () => {
     "Landlord Detail",
     "Tenant Detail",
     "Witness Detail",
-    "Upload Documents",
     "Summary"
   ];
 
@@ -190,14 +190,6 @@ const RentalAgreement = () => {
         );
       case 6:
         return (
-          <DocumentUploadStep
-            onNext={handleNext}
-            onBack={handleBack}
-            rentalAgreementId={formData.agreementId}
-          />
-        );
-      case 7:
-        return (
           <Summary
             formData={formData}
             onBack={handleBack}
@@ -238,7 +230,7 @@ const RentalAgreement = () => {
                 </Button>
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">RA</span>
+                    <span className="text-primary-foreground font-bold text-sm">IR</span>
                   </div>
                   <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
                 </div>
@@ -294,7 +286,7 @@ const RentalAgreement = () => {
                 </Button>
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">RA</span>
+                    <span className="text-primary-foreground font-bold text-sm">IndiRent</span>
                   </div>
                   <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
                 </div>
@@ -312,9 +304,9 @@ const RentalAgreement = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+      {/* Enhanced Header */}
+      <div className="bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button 
@@ -324,12 +316,9 @@ const RentalAgreement = () => {
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">RA</span>
-                </div>
-                <span className="text-xl font-bold text-gray-800">Rental Agreement</span>
-              </div>
+              <div className="text-2xl font-bold text-blue-600">IndiRent</div>
+              <div className="text-gray-600">|</div>
+              <div className="text-lg font-medium text-gray-800">Rental Agreement</div>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Shield className="h-4 w-4 text-green-600" />
@@ -337,59 +326,41 @@ const RentalAgreement = () => {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       <StepIndicator 
         currentStep={currentStep} 
-        totalSteps={7} 
+        totalSteps={6} 
         stepNames={stepNames} 
       />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Form Section */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Main Form */}
+          <div className="flex-1 lg:max-w-4xl">
+            <Card className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
+              <div className="p-8">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {stepNames[currentStep - 1]}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500"
-                    onClick={() => navigate('/')}
-                  >
-                    ✕
-                  </Button>
+                  </h2>
+                  <p className="text-gray-600">
+                    Fill in the details below to proceed with your rental agreement
+                  </p>
                 </div>
-              </CardHeader>
-              
-              <CardContent>
+
                 {renderCurrentStep()}
-              </CardContent>
+              </div>
             </Card>
           </div>
 
-          {/* Tips Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-4">
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Lightbulb className="h-5 w-5 mr-2 text-yellow-500" />
-                  Tips
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm text-gray-600">
-                  <p>• Fill all required fields marked with *</p>
-                  <p>• Keep your documents ready for upload</p>
-                  <p>• Double-check all information before proceeding</p>
-                  <p>• Your data is automatically saved</p>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Enhanced Sidebar */}
+          <div className="lg:w-80">
+            <div className="space-y-6 sticky top-6">
+              <TipsPanel currentStep={currentStep} />
+              <PaymentSummary formData={formData} />
+            </div>
           </div>
         </div>
       </div>

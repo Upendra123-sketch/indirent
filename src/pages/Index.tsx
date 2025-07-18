@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone, User, Fingerprint, Smartphone, Stamp, MapPin, Headphones, BadgeCheck, Package, FileUser } from "lucide-react";
+import { ArrowRight, Play, Shield, Clock, Users, FileText, Download, Star, CheckCircle, Mail, Phone, User, Fingerprint, Smartphone, Stamp, MapPin, Headphones, BadgeCheck, Package, FileUser, Calculator } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import AuthModal from "@/components/AuthModal";
@@ -26,6 +26,10 @@ const Index = () => {
 
   const handleProfileClick = () => {
     navigate('/profile');
+  };
+
+  const handleStampDutyCalculator = () => {
+    navigate('/stamp-duty-calculator');
   };
 
   const testimonials = [
@@ -60,7 +64,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/349dcba6-1db7-46e0-aef0-f5835990f926.png" 
+                src="/uploads/349dcba6-1db7-46e0-aef0-f5835990f926.png" 
                 alt="IndiRent Logo" 
                 className="h-16 w-auto"
               />
@@ -112,6 +116,13 @@ const Index = () => {
               >
                 Create Agreement Now
                 <ArrowRight className="ml-2 h-5 w-5 animate-bounce-in" />
+              </Button>
+              <Button 
+                onClick={handleStampDutyCalculator}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 magnetic-hover"
+              >
+                <Calculator className="mr-2 h-5 w-5" />
+                Stamp Duty Calculator
               </Button>
               <Button 
                 onClick={() => setShowDemo(true)}

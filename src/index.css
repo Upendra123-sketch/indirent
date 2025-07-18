@@ -96,6 +96,49 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Global prevention of mouse wheel scrolling on number inputs */
+  input[type="number"] {
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    display: none;
+  }
+  
+  /* Prevent mouse wheel from changing number input values globally */
+  input[type="number"] {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Enhanced focus styles for number inputs */
+  input[type="number"]:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+  }
+  
+  /* Additional protection against wheel events */
+  input[type="number"] {
+    scroll-behavior: auto;
+  }
+  
+  /* Disable scroll-induced value changes on number inputs */
+  input[type="number"] {
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+  }
 }
 
 /* Animation utilities */
